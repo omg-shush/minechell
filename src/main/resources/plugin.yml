@@ -1,0 +1,13 @@
+main: com.chellrose.minechell.App
+name: MineChell
+version: 0.1
+api-version: 1.20
+commands:
+  hat:
+    description: Put any item on your head!
+    usage: /hat
+    permission: minechell.hat
+  head:
+    description: Apply a skin to a blank player head
+    usage: /head
+    permission: minechell.head
