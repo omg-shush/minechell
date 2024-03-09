@@ -10,6 +10,7 @@ import java.util.UUID;
 
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -32,11 +33,15 @@ public class StateMachineTag {
 
     private JavaPlugin plugin;
     private Set<UUID> votedPlayers;
+    private UUID lastTagged;
+    private long lastTaggedTime;
     private Random rand;
 
     public StateMachineTag(JavaPlugin plugin) {
         this.plugin = plugin;
         this.votedPlayers = new HashSet<>();
+        this.lastTagged = null;
+        this.lastTaggedTime = -1;
         this.rand = new Random();
 
         this.plugin.getCommand(CommandTag.COMMAND).setExecutor(new CommandTag(this));
@@ -95,55 +100,67 @@ public class StateMachineTag {
         }
     }
 
+    public boolean isTagBack(Player tagged) {
+        return tagged != null && tagged.getUniqueId().equals(this.lastTagged) && System.currentTimeMillis() - this.lastTaggedTime < 20_000;
+    }
+
     public void tagWith(Player tagged, Player tagger, ItemStack with) {
-        BaseComponent itemName = new TextComponent("a FIST!");
-        if (with != null && with.getType() != Material.AIR) {
-            if (with.hasItemMeta() && with.getItemMeta().hasDisplayName()) {
-                itemName = new TextComponent("[" + with.getItemMeta().getDisplayName() + "]");
-            } else {
-                itemName = new TextComponent("[");
-                itemName.addExtra(new TranslatableComponent(with.getTranslationKey()));
-                itemName.addExtra(new TextComponent("]"));
-            }
-            ItemTag itemTag = ItemTag.ofNbt(with.getItemMeta() == null ? null : with.getItemMeta().getAsString());
-            itemName.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_ITEM, new Item(with.getType().getKey().toString(), with.getAmount(), itemTag)));
-            itemName.setColor(ChatColor.AQUA);
-        }
-        BaseComponent tail;
-        if (with != null && with.getAmount() > 1) {
-            tail = new TextComponent(with.getAmount() + "x ");
-            tail.addExtra(itemName);
+        if (isTagBack(tagged)) {
+            Player target = tagged == null ? tagger : tagged;
+            target.getWorld().playSound(target, Sound.ENTITY_VILLAGER_HURT, 0.4f, 1.25f);
+            Util.sendItalic(tagger, "No tagbacks!");
         } else {
-            tail = new TextComponent(itemName);
-        }
-
-        BaseComponent message = new TextComponent("TAG! ");
-        BaseComponent taggerName = new TextComponent(tagger.getName());
-        taggerName.setColor(ChatColor.YELLOW);
-        message.addExtra(taggerName);
-        if (tagged == null) {
-            // Dummy tag
-            if (with == null) {
-                message.addExtra(" tagged an armor stand!");
-            } else {
-                message.addExtra(" tagged an armor stand with ");
-                message.addExtra(tail);
+            BaseComponent itemName = new TextComponent("a FIST!");
+            if (with != null && with.getType() != Material.AIR) {
+                if (with.hasItemMeta() && with.getItemMeta().hasDisplayName()) {
+                    itemName = new TextComponent("[" + with.getItemMeta().getDisplayName() + "]");
+                } else {
+                    itemName = new TextComponent("[");
+                    itemName.addExtra(new TranslatableComponent(with.getTranslationKey()));
+                    itemName.addExtra(new TextComponent("]"));
+                }
+                ItemTag itemTag = ItemTag.ofNbt(with.getItemMeta() == null ? null : with.getItemMeta().getAsString());
+                itemName.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_ITEM, new Item(with.getType().getKey().toString(), with.getAmount(), itemTag)));
+                itemName.setColor(ChatColor.AQUA);
             }
-            message.setItalic(true);
-            tagger.spigot().sendMessage(message);
-        } else {
-            this.store.setTaggedPlayer(tagged);
-
-            message.addExtra(" tagged ");
-            message.addExtra(tagged.getName());
-            if (with == null) {
-                message.addExtra(new TextComponent("!"));
+            BaseComponent tail;
+            if (with != null && with.getAmount() > 1) {
+                tail = new TextComponent(with.getAmount() + "x ");
+                tail.addExtra(itemName);
             } else {
-                message.addExtra(" with ");
-                message.addExtra(tail);
+                tail = new TextComponent(itemName);
             }
-            message.setItalic(true);
-            this.store.broadcastToJoinedPlayers(message);
+
+            BaseComponent message = new TextComponent("TAG! ");
+            BaseComponent taggerName = new TextComponent(tagger.getName());
+            taggerName.setColor(ChatColor.YELLOW);
+            message.addExtra(taggerName);
+            if (tagged == null) {
+                // Dummy tag
+                if (with == null) {
+                    message.addExtra(" tagged an armor stand!");
+                } else {
+                    message.addExtra(" tagged an armor stand with ");
+                    message.addExtra(tail);
+                }
+                message.setItalic(true);
+                tagger.spigot().sendMessage(message);
+            } else {
+                this.lastTagged = this.store.getTaggedPlayer();
+                this.lastTaggedTime = System.currentTimeMillis();
+                this.store.setTaggedPlayer(tagged);
+
+                message.addExtra(" tagged ");
+                message.addExtra(tagged.getName());
+                if (with == null) {
+                    message.addExtra(new TextComponent("!"));
+                } else {
+                    message.addExtra(" with ");
+                    message.addExtra(tail);
+                }
+                message.setItalic(true);
+                this.store.broadcastToJoinedPlayers(message);
+            }
         }
     }
 

@@ -9,9 +9,14 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
+import org.bukkit.Effect;
+import org.bukkit.EntityEffect;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -106,6 +111,11 @@ public class StoreTag {
 
     public void setTaggedPlayer(OfflinePlayer player) {
         this.taggedPlayer = player.getUniqueId();
+        if (player instanceof Player) {
+            Player p = (Player)player;
+            p.addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, 20 * 20, 1, true, false, false));
+            p.getWorld().playEffect(p.getLocation(), Effect.ANVIL_LAND, null);
+        }
     }
 
     public UUID getTaggedPlayer() {
