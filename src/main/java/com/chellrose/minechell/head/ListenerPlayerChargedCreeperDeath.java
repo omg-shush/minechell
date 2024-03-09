@@ -1,4 +1,4 @@
-package com.chellrose.minechell;
+package com.chellrose.minechell.head;
 
 import org.bukkit.Material;
 import org.bukkit.entity.Creeper;

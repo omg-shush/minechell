@@ -1,4 +1,4 @@
-package com.chellrose.minechell;
+package com.chellrose.minechell.head;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -95,7 +95,7 @@ public class CommandHead implements CommandExecutor {
         item.setString("SkullOwner", owner);
     }
 
-    private UUID getUUIDFromPlayerName(String player) {
+    public static UUID getUUIDFromPlayerName(String player) {
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder(URI.create("https://api.mojang.com/users/profiles/minecraft/" + player)).build();
         try {

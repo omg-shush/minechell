@@ -1,4 +1,4 @@
-package com.chellrose.minechell;
+package com.chellrose.minechell.hat;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;

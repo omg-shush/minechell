@@ -1,4 +1,4 @@
-package com.chellrose.minechell;
+package com.chellrose.minechell.head;
 
 import java.util.ArrayList;
 import java.util.List;
