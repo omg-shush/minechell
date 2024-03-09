@@ -76,7 +76,6 @@ public class StoreTag {
             }
             String insertAll = insert.toString();
             insertAll = insertAll.substring(0, insertAll.length() - 2) + ";";
-            this.plugin.getLogger().info(insertAll); //TODO
             stmt.executeUpdate(insertAll);
         }
 

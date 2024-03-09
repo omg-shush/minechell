@@ -6,10 +6,10 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
-public class ListenerPlayerAttack implements Listener {
+public class ListenerPlayerTag implements Listener {
     private StateMachineTag sm;
 
-    public ListenerPlayerAttack(StateMachineTag sm) {
+    public ListenerPlayerTag(StateMachineTag sm) {
         this.sm = sm;
     }
 

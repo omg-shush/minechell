@@ -46,7 +46,8 @@ public class StateMachineTag {
                 handlePlayerDisconnect(e.getPlayer());
             }
         }, this.plugin);
-        this.plugin.getServer().getPluginManager().registerEvents(new ListenerPlayerAttack(this), this.plugin);
+        this.plugin.getServer().getPluginManager().registerEvents(new ListenerPlayerTag(this), this.plugin);
+        this.plugin.getServer().getPluginManager().registerEvents(new ListenerProjectileTag(this), this.plugin);
         try {
             this.store = StoreTag.load(plugin);
         } catch (SQLException e) {
@@ -122,8 +123,12 @@ public class StateMachineTag {
         message.addExtra(taggerName);
         if (tagged == null) {
             // Dummy tag
-            message.addExtra(" tagged an armor stand with ");
-            message.addExtra(tail);
+            if (with == null) {
+                message.addExtra(" tagged an armor stand!");
+            } else {
+                message.addExtra(" tagged an armor stand with ");
+                message.addExtra(tail);
+            }
             message.setItalic(true);
             tagger.spigot().sendMessage(message);
         } else {
@@ -131,8 +136,12 @@ public class StateMachineTag {
 
             message.addExtra(" tagged ");
             message.addExtra(tagged.getName());
-            message.addExtra(" with ");
-            message.addExtra(tail);
+            if (with == null) {
+                message.addExtra(new TextComponent("!"));
+            } else {
+                message.addExtra(" with ");
+                message.addExtra(tail);
+            }
             message.setItalic(true);
             this.store.broadcastToJoinedPlayers(message);
         }
