@@ -7,6 +7,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
+import com.chellrose.Util;
+
 public class CommandHat implements CommandExecutor {
     public static final String COMMAND = "hat";
 
@@ -21,7 +23,7 @@ public class CommandHat implements CommandExecutor {
             ItemStack newHandStack = helmetStack;
             inv.setHelmet(newHelmetStack);
             inv.setItemInMainHand(newHandStack);
-            player.sendMessage("It's on your head now!");
+            Util.sendItalic(player, "It's on your head now!");
         } else {
             sender.sendMessage("Only players can use that command.");
         }

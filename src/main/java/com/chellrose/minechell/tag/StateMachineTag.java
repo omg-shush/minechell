@@ -8,6 +8,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 
+import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -15,6 +16,16 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import com.chellrose.Util;
+
+import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.ItemTag;
+import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.chat.TranslatableComponent;
+import net.md_5.bungee.api.chat.hover.content.Item;
 
 public class StateMachineTag {
     protected StoreTag store;
@@ -35,6 +46,7 @@ public class StateMachineTag {
                 handlePlayerDisconnect(e.getPlayer());
             }
         }, this.plugin);
+        this.plugin.getServer().getPluginManager().registerEvents(new ListenerPlayerAttack(this), this.plugin);
         try {
             this.store = StoreTag.load(plugin);
         } catch (SQLException e) {
@@ -54,10 +66,10 @@ public class StateMachineTag {
     public void handleVote(Player player, boolean vote) {
         if (vote) {
             this.votedPlayers.add(player.getUniqueId());
-            player.sendMessage("You voted! " + this.votedPlayers.size() + " / " + this.requiredVote() + " votes needed.");
+            Util.sendItalic(player, "You voted! " + this.votedPlayers.size() + " / " + this.requiredVote() + " votes needed.");
         } else {
             this.votedPlayers.remove(player.getUniqueId());
-            player.sendMessage("You unvoted. "  + this.votedPlayers.size() + " / " + this.requiredVote() + " votes needed.");
+            Util.sendItalic(player, "You unvoted. "  + this.votedPlayers.size() + " / " + this.requiredVote() + " votes needed.");
         }
         checkVote();
     }
@@ -83,19 +95,47 @@ public class StateMachineTag {
     }
 
     public void tagWith(Player tagged, Player tagger, ItemStack with) {
-        this.store.setTaggedPlayer(tagged);
-        String item = "FIST";
-        if (with != null) {
-            if (with.getItemMeta().hasDisplayName()) {
-                item = with.getItemMeta().getDisplayName();
-            }
-            if (with.getAmount() > 1) {
-                item = with.getAmount() + " " + item + "s!";
+        BaseComponent itemName = new TextComponent("a FIST!");
+        if (with != null && with.getType() != Material.AIR) {
+            if (with.hasItemMeta() && with.getItemMeta().hasDisplayName()) {
+                itemName = new TextComponent("[" + with.getItemMeta().getDisplayName() + "]");
             } else {
-                item = "a " + item + "!";
+                itemName = new TextComponent("[");
+                itemName.addExtra(new TranslatableComponent(with.getTranslationKey()));
+                itemName.addExtra(new TextComponent("]"));
             }
+            ItemTag itemTag = ItemTag.ofNbt(with.getItemMeta() == null ? null : with.getItemMeta().getAsString());
+            itemName.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_ITEM, new Item(with.getType().getKey().toString(), with.getAmount(), itemTag)));
+            itemName.setColor(ChatColor.AQUA);
         }
-        this.store.broadcastToJoinedPlayers("TAG! " + tagger.getName() + " tagged " + tagged.getName() + " with " + item);
+        BaseComponent tail;
+        if (with != null && with.getAmount() > 1) {
+            tail = new TextComponent(with.getAmount() + "x ");
+            tail.addExtra(itemName);
+        } else {
+            tail = new TextComponent(itemName);
+        }
+
+        BaseComponent message = new TextComponent("TAG! ");
+        BaseComponent taggerName = new TextComponent(tagger.getName());
+        taggerName.setColor(ChatColor.YELLOW);
+        message.addExtra(taggerName);
+        if (tagged == null) {
+            // Dummy tag
+            message.addExtra(" tagged an armor stand with ");
+            message.addExtra(tail);
+            message.setItalic(true);
+            tagger.spigot().sendMessage(message);
+        } else {
+            this.store.setTaggedPlayer(tagged);
+
+            message.addExtra(" tagged ");
+            message.addExtra(tagged.getName());
+            message.addExtra(" with ");
+            message.addExtra(tail);
+            message.setItalic(true);
+            this.store.broadcastToJoinedPlayers(message);
+        }
     }
 
     public void tag(OfflinePlayer player) {
@@ -104,8 +144,16 @@ public class StateMachineTag {
             Player p = player.getPlayer();
             p.getWorld().strikeLightningEffect(p.getLocation());
         }
-        this.store.broadcastToJoinedPlayers("A mysterious force reaches from above...");
-        this.store.broadcastToJoinedPlayers("TAG! " + player.getName() + " is now it!");
+        BaseComponent loreMsg = new TextComponent("A mysterious force reaches from above...");
+        loreMsg.setItalic(true);
+        this.store.broadcastToJoinedPlayers(loreMsg);
+        BaseComponent playerName = new TextComponent(player.getName());
+        playerName.setColor(ChatColor.YELLOW);
+        BaseComponent message = new TextComponent("TAG! ");
+        message.addExtra(playerName);
+        message.addExtra(" is now it!");
+        message.setItalic(true);
+        this.store.broadcastToJoinedPlayers(message);
     }
 
     public void handlePlayerDisconnect(Player player) {

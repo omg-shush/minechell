@@ -6,6 +6,8 @@ import java.util.Random;
 
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.HumanEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.entity.WanderingTrader;
 import org.bukkit.event.Event.Result;
 import org.bukkit.event.EventHandler;
@@ -16,6 +18,8 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.MerchantInventory;
 import org.bukkit.inventory.MerchantRecipe;
+
+import com.chellrose.Util;
 
 import de.tr7zw.changeme.nbtapi.NBTItem;
 
@@ -61,7 +65,10 @@ public class ListenerWanderingTrader implements Listener {
                 } else {
                     // Don't allow trading already-clean heads
                     event.setResult(Result.DENY);
-                    mi.getMerchant().getTrader().sendMessage("That head is already clean!");
+                    HumanEntity e = mi.getMerchant().getTrader();
+                    if (e != null && e instanceof Player) {
+                        Util.sendItalic((Player)e, "That head is already clean!");
+                    }
                 }
             }
         }

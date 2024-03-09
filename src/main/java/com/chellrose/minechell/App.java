@@ -8,6 +8,10 @@ import com.chellrose.minechell.head.ListenerPlayerChargedCreeperDeath;
 import com.chellrose.minechell.head.ListenerWanderingTrader;
 import com.chellrose.minechell.tag.StateMachineTag;
 
+// TODO: Tag: require shown on dynmap
+// TODO: Tag scoreboard: who's currently it, how long they've been it
+// TODO: markdown syntax in chat messages
+// TODO: sticks/shears to attach/remove arms on armorstand
 // TODO: Trident retrieve items
 // TODO: saddle on head = ride people
 

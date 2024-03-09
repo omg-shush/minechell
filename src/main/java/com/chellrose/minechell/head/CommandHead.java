@@ -18,6 +18,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
+import com.chellrose.Util;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
@@ -44,10 +45,10 @@ public class CommandHead implements CommandExecutor {
                         player.sendMessage("Usage: /head <player name, uuid, or value>");
                     }
                 } else {
-                    player.sendMessage("You must clean the player head first! Perhaps a travelling merchant might be able to help...");
+                    Util.sendItalic(player, "You must clean the player head first! Perhaps a travelling merchant might be able to help...");
                 }
             } else {
-                player.sendMessage("You can only use /head while holding a player head.");
+                Util.sendItalic(player, "You can only use /head while holding a player head.");
             }
         } else {
             sender.sendMessage("Only players can use that command.");

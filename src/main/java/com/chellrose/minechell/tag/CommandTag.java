@@ -8,7 +8,12 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import com.chellrose.Util;
 import com.chellrose.minechell.head.CommandHead;
+
+import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.TextComponent;
 
 public class CommandTag implements CommandExecutor {
     public static final String COMMAND = "tag";
@@ -46,17 +51,22 @@ public class CommandTag implements CommandExecutor {
             if (args.length == 0) {
                 UUID tagged = this.sm.store.getTaggedPlayer();
                 if (tagged == null) {
-                    player.sendMessage("Nobody is currently it.");
+                    Util.sendItalic(player, "Nobody is currently it.");
                 } else {
-                    player.sendMessage(sender.getServer().getOfflinePlayer(tagged).getName() + " is currently it!");
+                    BaseComponent taggedName = new TextComponent(sender.getServer().getOfflinePlayer(tagged).getName());
+                    taggedName.setColor(ChatColor.YELLOW);
+                    BaseComponent message = new TextComponent(taggedName);
+                    message.addExtra(" is currently it!");
+                    message.setItalic(true);
+                    player.spigot().sendMessage(message);
                 }
             } else if (args.length > 1) {
-                sender.sendMessage("Too many parameters!");
+                return false;
             } else {
                 switch (args[0]) {
                 case "join":
                     if (this.sm.store.isJoinedPlayer(uuid)) {
-                        sender.sendMessage("You are already playing tag!");
+                        Util.sendItalic(player, "You are already playing tag!");
                     } else {
                         this.sm.store.addJoinedPlayer(player);
                     }
@@ -65,7 +75,7 @@ public class CommandTag implements CommandExecutor {
                     if (this.sm.store.isJoinedPlayer(uuid)) {
                         this.sm.store.removeJoinedPlayer(player);
                     } else {
-                        sender.sendMessage("You are not playing tag.");
+                        Util.sendItalic(player, "You are not playing tag.");
                     }
                     break;
                 case "vote":
@@ -75,8 +85,7 @@ public class CommandTag implements CommandExecutor {
                     this.sm.handleVote(player, false);
                     break;
                 default:
-                    sender.sendMessage("Unrecognized subcommand " + args[0]);
-                    break;
+                    return false;
                 }
             }
         } else {

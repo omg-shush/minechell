@@ -13,6 +13,10 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
+import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.TextComponent;
+
 public class StoreTag {
     private static final String DATABASE_NAME = "tag";
     private static final String TABLE_NAME = "tag_players";
@@ -92,6 +96,15 @@ public class StoreTag {
         }
     }
 
+    public void broadcastToJoinedPlayers(BaseComponent message) {
+        for (UUID uuid : this.joinedPlayers) {
+            Player p = this.plugin.getServer().getPlayer(uuid);
+            if (p != null) {
+                p.spigot().sendMessage(message);
+            }
+        }
+    }
+
     public void setTaggedPlayer(OfflinePlayer player) {
         this.taggedPlayer = player.getUniqueId();
     }
@@ -102,12 +115,29 @@ public class StoreTag {
 
     public void addJoinedPlayer(OfflinePlayer player) {
         this.joinedPlayers.add(player.getUniqueId());
-        this.broadcastToJoinedPlayers(player.getName() + " is now playing tag!");
+
+        BaseComponent playerName = new TextComponent(player.getName());
+        playerName.setColor(ChatColor.YELLOW);
+        BaseComponent message = new TextComponent();
+        message.addExtra(playerName);
+        message.addExtra(" is now playing tag!");
+        message.setItalic(true);
+        this.broadcastToJoinedPlayers(message);
     }
 
     public void removeJoinedPlayer(OfflinePlayer player) {
+        BaseComponent playerName = new TextComponent(player.getName());
+        playerName.setColor(ChatColor.YELLOW);
+        BaseComponent message = new TextComponent();
+        message.addExtra(playerName);
+        message.addExtra(" is no longer playing tag.");
+        message.setItalic(true);
+        this.broadcastToJoinedPlayers(message);
+
         this.joinedPlayers.remove(player.getUniqueId());
-        this.broadcastToJoinedPlayers(player.getName() + " is no longer playing tag.");
+        if (player.getUniqueId().equals(this.taggedPlayer)) {
+            this.taggedPlayer = null;
+        }
     }
 
     public boolean isJoinedPlayer(UUID player) {
