@@ -1,5 +1,6 @@
 package com.chellrose.minechell.tag;
 
+import java.util.Set;
 import java.util.UUID;
 
 import org.bukkit.OfflinePlayer;
@@ -64,6 +65,47 @@ public class CommandTag implements CommandExecutor {
                 return false;
             } else {
                 switch (args[0]) {
+                case "list":
+                case "online":
+                    BaseComponent message = new TextComponent(args[0].equals("list") ? "Current tag players: " : "Online tag players: ");
+                    Set<UUID> uuids = this.sm.store.joinedPlayers();
+                    boolean first = true;
+                    for (UUID u : uuids) {
+                        BaseComponent playerName;
+                        Player p = player.getServer().getPlayer(u);
+                        if (p != null) {
+                            // Online player
+                            playerName = new TextComponent(p.getName());
+                            playerName.setColor(ChatColor.YELLOW);
+                        } else if (args[0].equals("list")) {
+                            // Offline player included
+                            OfflinePlayer o = player.getServer().getOfflinePlayer(u);
+                            if (o != null) {
+                                playerName = new TextComponent(o.getName());
+                                playerName.setColor(ChatColor.GRAY);
+                            } else {
+                                // Player deleted, skip
+                                continue;
+                            }
+                        } else {
+                            // Offline player excluded
+                            continue;
+                        }
+                        if (first) {
+                            first = false;
+                        } else {
+                            message.addExtra(", ");
+                        }
+                        message.addExtra(playerName);
+                    }
+                    if (first) {
+                        BaseComponent nobody = new TextComponent("Nobody ☹");
+                        nobody.setColor(ChatColor.AQUA);
+                        message.addExtra(nobody);
+                    }
+                    message.setItalic(true);
+                    player.spigot().sendMessage(message);
+                    break;
                 case "join":
                     if (this.sm.store.isJoinedPlayer(uuid)) {
                         Util.sendItalic(player, "You are already playing tag!");
@@ -75,14 +117,22 @@ public class CommandTag implements CommandExecutor {
                     if (this.sm.store.isJoinedPlayer(uuid)) {
                         this.sm.store.removeJoinedPlayer(player);
                     } else {
-                        Util.sendItalic(player, "You are not playing tag.");
+                        Util.sendItalic(player, "You are not playing tag. Use /tag join");
                     }
                     break;
                 case "vote":
-                    this.sm.handleVote(player, true);
+                    if (this.sm.store.isJoinedPlayer(uuid)) {
+                        this.sm.handleVote(player, true);
+                    } else {
+                        Util.sendItalic(player, "You are not playing tag. Use /tag join");
+                    }
                     break;
                 case "unvote":
-                    this.sm.handleVote(player, false);
+                    if (this.sm.store.isJoinedPlayer(uuid)) {
+                        this.sm.handleVote(player, false);
+                    } else {
+                        Util.sendItalic(player, "You are not playing tag. Use /tag join");
+                    }
                     break;
                 default:
                     return false;

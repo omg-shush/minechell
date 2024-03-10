@@ -30,8 +30,8 @@ import net.md_5.bungee.api.chat.hover.content.Item;
 
 public class StateMachineTag {
     protected StoreTag store;
+    protected JavaPlugin plugin;
 
-    private JavaPlugin plugin;
     private Set<UUID> votedPlayers;
     private UUID lastTagged;
     private long lastTaggedTime;
@@ -101,7 +101,7 @@ public class StateMachineTag {
     }
 
     public boolean isTagBack(Player tagged) {
-        return tagged != null && tagged.getUniqueId().equals(this.lastTagged) && System.currentTimeMillis() - this.lastTaggedTime < 20_000;
+        return tagged != null && tagged.getUniqueId().equals(this.lastTagged) && System.currentTimeMillis() - this.lastTaggedTime < 10_000;
     }
 
     public void tagWith(Player tagged, Player tagger, ItemStack with) {
@@ -151,7 +151,9 @@ public class StateMachineTag {
                 this.store.setTaggedPlayer(tagged);
 
                 message.addExtra(" tagged ");
-                message.addExtra(tagged.getName());
+                BaseComponent taggedName = new TextComponent(tagged.getName());
+                taggedName.setColor(ChatColor.YELLOW);
+                message.addExtra(taggedName);
                 if (with == null) {
                     message.addExtra(new TextComponent("!"));
                 } else {

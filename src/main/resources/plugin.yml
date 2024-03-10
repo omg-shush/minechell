@@ -2,7 +2,7 @@ main: com.chellrose.minechell.App
 name: MineChell
 author: omg_shush
 website: github.com/omg-shush/minechell
-version: 0.2
+version: 0.2.1
 api-version: '1.20'
 commands:
   hat:
@@ -15,7 +15,7 @@ commands:
     permission: minechell.head
   tag:
     description: Play a game of tag!
-    usage: /tag <join|leave|vote|set>
+    usage: /tag [list|online|join|leave|vote|unvote|set]
     permission: minechell.tag
 permissions:
   minechell.hat:

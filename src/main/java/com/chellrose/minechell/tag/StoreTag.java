@@ -5,14 +5,13 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
 import org.bukkit.Effect;
-import org.bukkit.EntityEffect;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
@@ -151,5 +150,10 @@ public class StoreTag {
 
     public boolean isJoinedPlayer(UUID player) {
         return this.joinedPlayers.contains(player);
+    }
+
+    // Returns an unmodifiable set of joined player's UUIDs
+    public Set<UUID> joinedPlayers() {
+        return Collections.unmodifiableSet(this.joinedPlayers);
     }
 }
