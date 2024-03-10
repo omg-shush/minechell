@@ -6,7 +6,9 @@ import java.util.Set;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.Bisected.Half;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.type.Slab;
@@ -16,8 +18,8 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.plugin.Plugin;
@@ -49,13 +51,30 @@ public class ListenerPlayerSitDown implements Listener {
         arrow.setInvulnerable(true);
         arrow.setGravity(false);
         arrow.setSilent(true);
-        arrow.setMetadata("sit", new FixedMetadataValue(this.plugin, true));
+        this.makeSitArrow(arrow);
         arrow.addPassenger(player);
+    }
+
+    private boolean isSitArrow(Arrow arrow) {
+        if (arrow != null && arrow.hasMetadata("sit")) {
+            List<MetadataValue> meta = arrow.getMetadata("sit");
+            return !meta.isEmpty() && meta.get(0).asBoolean() && meta.get(0).getOwningPlugin() == this.plugin;
+        } else {
+            return false;
+        }
+    }
+
+    private void makeSitArrow(Arrow arrow) {
+        arrow.setMetadata("sit", new FixedMetadataValue(this.plugin, true));
     }
 
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
-        if (event.getHand() == EquipmentSlot.HAND && event.getMaterial().isAir()) {
+        if (event.getAction() == Action.RIGHT_CLICK_BLOCK &&
+            event.getMaterial().isAir() &&
+            event.getClickedBlock() != null &&
+            event.getBlockFace() == BlockFace.UP
+        ) {
             // Right click with empty hand
             Block block = event.getClickedBlock();
             if (this.sittable.contains(block.getType())) {
@@ -73,13 +92,23 @@ public class ListenerPlayerSitDown implements Listener {
     public void onEntityDismount(EntityDismountEvent event) {
         if (event.getEntityType() == EntityType.PLAYER && event.getDismounted() instanceof Arrow) {
             Arrow arrow = (Arrow)event.getDismounted();
-            List<MetadataValue> meta = arrow.getMetadata("sit");
-            if (!meta.isEmpty() && meta.get(0).asBoolean() && meta.get(0).getOwningPlugin() == this.plugin) {
+            if (this.isSitArrow(arrow)) {
                 arrow.remove();
                 Player player = (Player)event.getEntity();
                 Location standLocation = player.getLocation().add(0.0, -1.0 * DELTA_Y, 0.0);
                 if (!player.isDead() && player.getVehicle() == null) {
                     player.teleport(standLocation);
+                }
+            }
+        }
+    }
+
+    public void handleDisable() {
+        this.plugin.getLogger().info("Removing all sit arrows...");
+        for (World world : this.plugin.getServer().getWorlds()) {
+            for (Arrow arrow : world.getEntitiesByClass(Arrow.class)) {
+                if (this.isSitArrow(arrow)) {
+                    arrow.remove();
                 }
             }
         }

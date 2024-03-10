@@ -26,6 +26,7 @@ public class App extends JavaPlugin {
     public static Logger logger;
 
     private StateMachineTag tag;
+    private ListenerPlayerSitDown sit;
 
     @Override
     public void onEnable() {
@@ -44,14 +45,16 @@ public class App extends JavaPlugin {
         this.tag = new StateMachineTag(this);
 
         // Sit
-        pluginManager.registerEvents(new ListenerPlayerSitDown(this), this);
+        this.sit = new ListenerPlayerSitDown(this);
+        pluginManager.registerEvents(this.sit, this);
 
         getLogger().info("MineChell enabled.");
     }
     
     @Override
     public void onDisable() {
-        tag.handleDisable();
+        this.tag.handleDisable();
+        this.sit.handleDisable();
         getLogger().info("MineChell disabled.");
     }
 }
