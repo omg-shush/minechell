@@ -8,7 +8,6 @@ import com.chellrose.minechell.head.ListenerPlayerChargedCreeperDeath;
 import com.chellrose.minechell.head.ListenerWanderingTrader;
 import com.chellrose.minechell.tag.StateMachineTag;
 
-// TODO: Tag: no tagbacks for 20s
 // TODO: Sit!
 // TODO: Tag: require shown on dynmap
 // TODO: Tag scoreboard: who's currently it, how long they've been it

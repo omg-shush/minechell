@@ -1,8 +1,8 @@
 package com.chellrose.minechell.egg;
 
-// TODO: government-censorship (ow)
-// TODO: knock-knock (x gon give it to ya)
-// TODO: swirly
+// TODO: government-censorship
+// TODO: knock-knock
+// TODO: shulker-swirly
 
 public class Egg {
     

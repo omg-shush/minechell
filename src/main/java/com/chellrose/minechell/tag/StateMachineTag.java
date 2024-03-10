@@ -121,7 +121,9 @@ public class StateMachineTag {
                 }
                 ItemTag itemTag = ItemTag.ofNbt(with.getItemMeta() == null ? null : with.getItemMeta().getAsString());
                 itemName.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_ITEM, new Item(with.getType().getKey().toString(), with.getAmount(), itemTag)));
-                itemName.setColor(ChatColor.AQUA);
+                if (with.hasItemMeta()) {
+                    itemName.setColor(ChatColor.AQUA);
+                }
             }
             BaseComponent tail;
             if (with != null && with.getAmount() > 1) {
