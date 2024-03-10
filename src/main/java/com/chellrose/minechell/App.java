@@ -44,7 +44,7 @@ public class App extends JavaPlugin {
         this.tag = new StateMachineTag(this);
 
         // Sit
-        pluginManager.registerEvents(new ListenerPlayerSitDown(), this);
+        pluginManager.registerEvents(new ListenerPlayerSitDown(this), this);
 
         getLogger().info("MineChell enabled.");
     }
