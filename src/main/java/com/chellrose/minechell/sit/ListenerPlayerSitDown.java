@@ -95,10 +95,19 @@ public class ListenerPlayerSitDown implements Listener {
             if (!arrow.isDead() && arrow.isInBlock() && !player.isDead() && player.isOnline()) {
                 arrow.addPassenger(player);
                 BukkitTask keepalive = Bukkit.getScheduler().runTaskTimer(this.plugin, () -> {
-                    if (!arrow.isDead() && !arrow.getPassengers().isEmpty()) {
+                    Block blockAttached = arrow.getAttachedBlock();
+                    Block blockAbove = blockAttached == null ? null : blockAttached.getRelative(BlockFace.UP);
+                    BlockData blockData = blockAbove == null ? null : blockAbove.getBlockData();
+                    if (!arrow.isDead() && !arrow.getPassengers().isEmpty() && arrow.isInBlock() && this.isValidSeat(blockData)) {
                         arrow.setTicksLived(1);
+                    } else {
+                        arrow.remove();
+                        BukkitTask task = this.keepaliveTasks.remove(arrow.getEntityId());
+                        if (task != null) {
+                            task.cancel();
+                        }
                     }
-                }, 59 * 20, 59 * 20);
+                }, 5, 5);
                 this.keepaliveTasks.put(arrow.getEntityId(), keepalive);
             } else {
                 arrow.remove();
@@ -120,6 +129,11 @@ public class ListenerPlayerSitDown implements Listener {
         arrow.setMetadata("sit", new FixedMetadataValue(this.plugin, true));
     }
 
+    private boolean isValidSeat(BlockData blockData) {
+        return (blockData instanceof Slab && ((Slab)blockData).getType() == Slab.Type.BOTTOM) ||
+            (blockData instanceof Stairs && ((Stairs)blockData).getHalf() == Half.BOTTOM);
+    }
+
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
         if (event.getAction() == Action.RIGHT_CLICK_BLOCK &&
@@ -130,10 +144,7 @@ public class ListenerPlayerSitDown implements Listener {
             // Right click with empty hand
             Block block = event.getClickedBlock();
             if (this.sittable.contains(block.getType())) {
-                BlockData blockData = block.getBlockData();
-                if ((blockData instanceof Slab && ((Slab)blockData).getType() == Slab.Type.BOTTOM) ||
-                    (blockData instanceof Stairs && ((Stairs)blockData).getHalf() == Half.BOTTOM))
-                {
+                if (this.isValidSeat(block.getBlockData())) {
                     Player player = event.getPlayer();
                     UUID uuid = player.getUniqueId();
                     long currentTime = System.currentTimeMillis();
