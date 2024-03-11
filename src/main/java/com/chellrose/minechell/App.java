@@ -12,7 +12,8 @@ import com.chellrose.minechell.head.ListenerWanderingTrader;
 import com.chellrose.minechell.sit.ListenerPlayerSitDown;
 import com.chellrose.minechell.tag.StateMachineTag;
 
-// TODO: Sit!
+// TODO: tag: clear glowing effect when untagged
+// TODO: sit: don't allow if block above is opaque/will suffocate you
 // TODO: chat channels
 // TODO: /yoink and /unyoink
 // TODO: Tag: require shown on dynmap

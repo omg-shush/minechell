@@ -1,9 +1,12 @@
 package com.chellrose.minechell.sit;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -12,7 +15,10 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.Bisected.Half;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.type.Slab;
+import org.bukkit.block.data.type.Slab.Type;
 import org.bukkit.block.data.type.Stairs;
+import org.bukkit.block.data.type.TrapDoor;
+import org.bukkit.entity.AbstractArrow.PickupStatus;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -23,6 +29,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 import org.spigotmc.event.entity.EntityDismountEvent;
 
@@ -31,18 +38,27 @@ public class ListenerPlayerSitDown implements Listener {
 
     private Plugin plugin;
     private Set<Material> sittable;
+    private Set<Material> signs;
+    private HashMap<UUID, Long> lastSit;
+    private HashMap<Integer, BukkitTask> keepaliveTasks;
 
     public ListenerPlayerSitDown(Plugin plugin) {
         this.plugin = plugin;
         this.sittable = new HashSet<>();
+        this.signs = new HashSet<>();
+        this.lastSit = new HashMap<>();
+        this.keepaliveTasks = new HashMap<>();
         for (Material material : Material.values()) {
-            if (material.name().contains("STAIRS") || material.name().contains("SLAB")) {
-                sittable.add(material);
+            String name = material.name();
+            if (name.contains("STAIRS") || name.contains("SLAB")) {
+                this.sittable.add(material);
+            } else if (name.contains("SIGN")) {
+                this.signs.add(material);
             }
         }
     }
 
-    private void sit(Player player, Block block) {
+    private boolean sit(Player player, Block block) {
         // Spawn entity at center of block
         Location location = block.getLocation().add(0.5, DELTA_Y, 0.5);
         Arrow arrow = player.getWorld().spawnArrow(location, new Vector(0, 1, 0), 0.0f, 0.0f);
@@ -51,8 +67,44 @@ public class ListenerPlayerSitDown implements Listener {
         arrow.setInvulnerable(true);
         arrow.setGravity(false);
         arrow.setSilent(true);
+        arrow.setPickupStatus(PickupStatus.DISALLOWED);
         this.makeSitArrow(arrow);
-        arrow.addPassenger(player);
+        Block upperBlock = player.getWorld().getBlockAt(block.getLocation().add(0.0, 1.0, 0.0));
+        if (upperBlock.getType().isOccluding() || upperBlock.getBlockData() instanceof Slab && ((Slab)upperBlock.getBlockData()).getType() == Type.DOUBLE) {
+            arrow.remove();
+            return false;
+        }
+        Block[] adjacentBlocks = new Block[]{
+            block.getRelative(BlockFace.NORTH),
+            block.getRelative(BlockFace.EAST),
+            block.getRelative(BlockFace.SOUTH),
+            block.getRelative(BlockFace.WEST)
+        };
+        boolean isChair = false;
+        for (Block adjacent : adjacentBlocks) {
+            if (adjacent.getBlockData() instanceof TrapDoor || this.signs.contains(adjacent.getType())) {
+                isChair = true;
+                break;
+            }
+        }
+        if (!isChair) {
+            arrow.remove();
+            return false;
+        }
+        Bukkit.getScheduler().runTaskLater(this.plugin, () -> {
+            if (!arrow.isDead() && arrow.isInBlock() && !player.isDead() && player.isOnline()) {
+                arrow.addPassenger(player);
+                BukkitTask keepalive = Bukkit.getScheduler().runTaskTimer(this.plugin, () -> {
+                    if (!arrow.isDead() && !arrow.getPassengers().isEmpty()) {
+                        arrow.setTicksLived(1);
+                    }
+                }, 59 * 20, 59 * 20);
+                this.keepaliveTasks.put(arrow.getEntityId(), keepalive);
+            } else {
+                arrow.remove();
+            }
+        }, 2);
+        return true;
     }
 
     private boolean isSitArrow(Arrow arrow) {
@@ -82,7 +134,14 @@ public class ListenerPlayerSitDown implements Listener {
                 if ((blockData instanceof Slab && ((Slab)blockData).getType() == Slab.Type.BOTTOM) ||
                     (blockData instanceof Stairs && ((Stairs)blockData).getHalf() == Half.BOTTOM))
                 {
-                    this.sit(event.getPlayer(), block);
+                    Player player = event.getPlayer();
+                    UUID uuid = player.getUniqueId();
+                    long currentTime = System.currentTimeMillis();
+                    if (!this.lastSit.containsKey(uuid) || currentTime - this.lastSit.get(uuid) > 1_000) {
+                        if (this.sit(player, block)) {
+                            this.lastSit.put(uuid, currentTime);
+                        }
+                    }
                 }
             }
         }
@@ -94,6 +153,10 @@ public class ListenerPlayerSitDown implements Listener {
             Arrow arrow = (Arrow)event.getDismounted();
             if (this.isSitArrow(arrow)) {
                 arrow.remove();
+                BukkitTask keepalive = this.keepaliveTasks.remove(arrow.getEntityId());
+                if (keepalive != null) {
+                    keepalive.cancel();
+                }
                 Player player = (Player)event.getEntity();
                 Location standLocation = player.getLocation().add(0.0, -1.0 * DELTA_Y, 0.0);
                 if (!player.isDead() && player.getVehicle() == null) {

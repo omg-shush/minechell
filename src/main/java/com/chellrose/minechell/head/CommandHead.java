@@ -18,7 +18,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
-import com.chellrose.Util;
+import com.chellrose.minechell.Util;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 

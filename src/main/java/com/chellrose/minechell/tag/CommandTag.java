@@ -9,7 +9,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import com.chellrose.Util;
+import com.chellrose.minechell.Util;
 import com.chellrose.minechell.head.CommandHead;
 
 import net.md_5.bungee.api.ChatColor;

@@ -1,4 +1,4 @@
-package com.chellrose;
+package com.chellrose.minechell;
 
 import org.bukkit.entity.Player;
 

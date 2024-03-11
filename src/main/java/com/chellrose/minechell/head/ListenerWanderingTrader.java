@@ -19,7 +19,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.MerchantInventory;
 import org.bukkit.inventory.MerchantRecipe;
 
-import com.chellrose.Util;
+import com.chellrose.minechell.Util;
 
 import de.tr7zw.changeme.nbtapi.NBTItem;
 

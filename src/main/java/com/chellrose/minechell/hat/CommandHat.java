@@ -7,7 +7,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
-import com.chellrose.Util;
+import com.chellrose.minechell.Util;
 
 public class CommandHat implements CommandExecutor {
     public static final String COMMAND = "hat";
