@@ -15,10 +15,15 @@ Official Bukkit plugin for the EFSC
     - Use an ink sac to make it visible again
     - Consumes 1 phantom membrane/ink sac on successful use
     - When you remove the item, the invisible ItemFrame will break off
+- Armor Stands: Arms & Poses!
+    - Use 2 sticks to add arms to an armor stand in the world
+    - Use shears to break the arms off again
 - Tag: TODO
 - Head: TODO
 
 ## TODO
+- [ ] armorstand base plate (pickaxe/smooth stone slab)
+- [ ] armorstand poses (music discs?)
 - [ ] add some kind of wrench (debug stick), limited to only stairs/fences/etc
 - [ ] tag: clear glowing effect when untagged
 - [ ] sit: don't allow if block above is opaque/will suffocate you
@@ -27,6 +32,5 @@ Official Bukkit plugin for the EFSC
 - [ ] Tag: require shown on dynmap
 - [ ] Tag scoreboard: who's currently it, how long they've been it
 - [ ] markdown syntax in chat messages
-- [ ] sticks/shears to attach/remove arms on armorstand
 - [ ] Trident retrieve items
 - [ ] saddle on head = ride
