@@ -9,19 +9,9 @@ import com.chellrose.minechell.hat.CommandHat;
 import com.chellrose.minechell.head.CommandHead;
 import com.chellrose.minechell.head.ListenerPlayerChargedCreeperDeath;
 import com.chellrose.minechell.head.ListenerWanderingTrader;
+import com.chellrose.minechell.itemframe.ListenerInvisibleItemFrame;
 import com.chellrose.minechell.sit.ListenerPlayerSitDown;
 import com.chellrose.minechell.tag.StateMachineTag;
-
-// TODO: tag: clear glowing effect when untagged
-// TODO: sit: don't allow if block above is opaque/will suffocate you
-// TODO: chat channels
-// TODO: /yoink and /unyoink
-// TODO: Tag: require shown on dynmap
-// TODO: Tag scoreboard: who's currently it, how long they've been it
-// TODO: markdown syntax in chat messages
-// TODO: sticks/shears to attach/remove arms on armorstand
-// TODO: Trident retrieve items
-// TODO: saddle on head = ride people
 
 public class App extends JavaPlugin {
     public static Logger logger;
@@ -48,6 +38,9 @@ public class App extends JavaPlugin {
         // Sit
         this.sit = new ListenerPlayerSitDown(this);
         pluginManager.registerEvents(this.sit, this);
+
+        // ItemFrame
+        pluginManager.registerEvents(new ListenerInvisibleItemFrame(), this);
 
         getLogger().info("MineChell enabled.");
     }
