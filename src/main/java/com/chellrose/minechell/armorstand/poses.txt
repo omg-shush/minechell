@@ -1,0 +1,11 @@
+/execute as @e[name=straight] run data merge entity @s {ShowArms:1b,Pose:{Head:[1f,0f,0f],LeftArm:[1f,0f,0f],RightArm:[1f,0f,0f]}}
+/execute as @e[name=lookhands] run data merge entity @s {ShowArms:1b,Pose:{Head:[19f,0f,0f],LeftArm:[298f,29f,0f],RightArm:[308f,328f,0f]}}
+/execute as @e[name=lookatthis] run data merge entity @s {ShowArms:1b,Pose:{Head:[348f,0f,0f],LeftArm:[16f,12f,0f],RightArm:[325f,29f,0f]}}
+/execute as @e[name=wait] run data merge entity @s {ShowArms:1b,Pose:{LeftArm:[29f,0f,0f],RightArm:[231f,0f,0f]}}
+/execute as @e[name=pray] run data merge entity @s {ShowArms:1b,Pose:{Head:[328f,0f,0f],LeftLeg:[2f,0f,0f],LeftArm:[221f,0f,322f],RightArm:[221f,0f,39f]}}
+/execute as @e[name=hug] run data merge entity @s {ShowArms:1b,Pose:{LeftArm:[305f,0f,234f],RightArm:[234f,0f,305f]}}
+/execute as @e[name=dab] run data merge entity @s {ShowArms:1b,Pose:{Head:[32f,0f,0f],LeftLeg:[0f,32f,0f],LeftArm:[248f,312f,0f],RightArm:[254f,325f,0f]}}
+/execute as @e[name=bruh] run data merge entity @s {ShowArms:1b,Pose:{RightLeg:[318f,0f,0f],LeftArm:[254f,0f,0f],RightArm:[248f,0f,0f]}}
+/execute as @e[name=dance1] run data merge entity @s {ShowArms:1b,Pose:{LeftLeg:[355f,42f,0f],RightLeg:[254f,73f,0f],LeftArm:[0f,0f,238f],RightArm:[0f,0f,120f]}}
+/execute as @e[name=dance2] run data merge entity @s{ShowArms:1b,Pose:{LeftLeg:[268f,318f,0f],RightLeg:[2f,90f,0f],LeftArm:[0f,0f,238f],RightArm:[0f,0f,120f]}}
+/execute as @e[name=propose] run data merge entity @s {ShowArms:1b,Pose:{Head:[0f,66f,0f],LeftLeg:[2f,42f,0f],RightLeg:[0f,32f,0f],LeftArm:[349f,0f,0f],RightArm:[187f,0f,288f]}}
