@@ -16,14 +16,15 @@ Official Bukkit plugin for the EFSC
     - Consumes 1 phantom membrane/ink sac on successful use
     - When you remove the item, the invisible ItemFrame will break off
 - Armor Stands: Arms & Poses!
-    - Use 2 sticks to add arms to an armor stand in the world
-    - Use shears to break the arms off again
+    - Sneak + Use 2 sticks to add arms to an armor stand in the world
+    - Sneak + Use shears to break the arms off again
+    - Sneak + Use a pickaxe to remove the armor stand base plate
+    - Sneak + Use a smooth stone slab to add the base plate again
+    - Sneak + Use a music disc to set the armor stand pose! Discs are not consumed.
 - Tag: TODO
 - Head: TODO
 
 ## TODO
-- [ ] armorstand base plate (pickaxe/smooth stone slab)
-- [ ] armorstand poses (music discs?)
 - [ ] add some kind of wrench (debug stick), limited to only stairs/fences/etc
 - [ ] tag: clear glowing effect when untagged
 - [ ] sit: don't allow if block above is opaque/will suffocate you

@@ -11,10 +11,27 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * A listener for extra interactions with Armor Stands.
  */
 public class ListenerArmorStand implements Listener {
+    private static final Map<Material, ArmorStandPose> musicDiscPoses = new HashMap<>();
+    static {
+        musicDiscPoses.put(Material.MUSIC_DISC_CAT,     ArmorStandPose.LOOKHANDS_POSE);
+        musicDiscPoses.put(Material.MUSIC_DISC_BLOCKS,  ArmorStandPose.LOOKATTHIS_POSE);
+        musicDiscPoses.put(Material.MUSIC_DISC_CHIRP,   ArmorStandPose.PRAY_POSE);
+        musicDiscPoses.put(Material.MUSIC_DISC_FAR,     ArmorStandPose.HUG_POSE);
+        musicDiscPoses.put(Material.MUSIC_DISC_MALL,    ArmorStandPose.DAB_POSE);
+        musicDiscPoses.put(Material.MUSIC_DISC_MELLOHI, ArmorStandPose.BRUH_POSE);
+        musicDiscPoses.put(Material.MUSIC_DISC_STAL,    ArmorStandPose.DANCE1_POSE);
+        musicDiscPoses.put(Material.MUSIC_DISC_STRAD,   ArmorStandPose.DANCE2_POSE);
+        musicDiscPoses.put(Material.MUSIC_DISC_WARD,    ArmorStandPose.PROPOSE_POSE);
+        musicDiscPoses.put(Material.MUSIC_DISC_WAIT,    ArmorStandPose.WAIT_POSE);
+    }
+
     /**
      * Performs specific actions when the player uses an item on an Armor Stand.
      *
@@ -26,98 +43,50 @@ public class ListenerArmorStand implements Listener {
             ArmorStand armorStand = (ArmorStand) event.getRightClicked();
             Player player = event.getPlayer();
             ItemStack item = player.getInventory().getItem(event.getHand());
-            if (item != null && item.getType() != Material.AIR) {
-                if (item != null && item.getType() != Material.AIR) {
-                    switch (item.getType()) {
-                        case STICK: // Adds arms to the armor stand
-                            if (!armorStand.hasArms() && item.getAmount() >= 2) {
-                                event.setCancelled(true); // Would otherwise place stick in armor stand's hand
-                                armorStand.setArms(true);
-                                item.setAmount(item.getAmount() - 2);
-                            }
-                            break;
-                        case SHEARS: // Removes the arms from the armor stand
-                            if (armorStand.hasArms()) {
-                                event.setCancelled(true);
-                                armorStand.setArms(false);
-                                dropHandItems(armorStand);
-                                damageItem(item, player);
-                            }
-                            break;
-                        case WOODEN_PICKAXE:
-                        case STONE_PICKAXE:
-                        case IRON_PICKAXE:
-                        case DIAMOND_PICKAXE:
-                        case NETHERITE_PICKAXE:
-                        case GOLDEN_PICKAXE: // Removes the base plate from the armor stand
+            if (item != null && item.getType() != Material.AIR && player.isSneaking()) {
+                switch (item.getType()) {
+                    case STICK: // Adds arms to the armor stand
+                        if (!armorStand.hasArms() && item.getAmount() >= 2) {
+                            event.setCancelled(true); // Would otherwise place stick in armor stand's hand
+                            armorStand.setArms(true);
+                            item.setAmount(item.getAmount() - 2);
+                        }
+                        break;
+                    case SHEARS: // Removes the arms from the armor stand
+                        if (armorStand.hasArms()) {
+                            event.setCancelled(true);
+                            armorStand.setArms(false);
+                            dropHandItems(armorStand);
+                            damageItem(item, player);
+                        }
+                        break;
+                    case WOODEN_PICKAXE:
+                    case STONE_PICKAXE:
+                    case IRON_PICKAXE:
+                    case DIAMOND_PICKAXE:
+                    case NETHERITE_PICKAXE:
+                    case GOLDEN_PICKAXE: // Removes the base plate from the armor stand
+                        if (armorStand.hasBasePlate()) {
                             event.setCancelled(true);
                             damageItem(item, player);
                             armorStand.setBasePlate(false);
-                            break;
-                        case SMOOTH_STONE_SLAB: // Adds a base plate to the armor stand
+                        }
+                        break;
+                    case SMOOTH_STONE_SLAB: // Adds a base plate to the armor stand
+                        event.setCancelled(true);
+                        if (!armorStand.hasBasePlate()) {
+                            item.setAmount(item.getAmount() - 1);
+                            armorStand.setBasePlate(true);
+                        }
+                        break;
+                    default:
+                        if (item.getType().isRecord()) {
+                            // Adjust armor stand pose based on the music disc used
                             event.setCancelled(true);
-                            if (!armorStand.hasBasePlate()) {
-                                item.setAmount(item.getAmount() - 1);
-                                armorStand.setBasePlate(true);
-                            }
-                            break;
-                        case MUSIC_DISC_13:
-                        case MUSIC_DISC_CAT:
-                        case MUSIC_DISC_BLOCKS:
-                        case MUSIC_DISC_CHIRP:
-                        case MUSIC_DISC_FAR:
-                        case MUSIC_DISC_MALL:
-                        case MUSIC_DISC_MELLOHI:
-                        case MUSIC_DISC_STAL:
-                        case MUSIC_DISC_STRAD:
-                        case MUSIC_DISC_WARD:
-                        case MUSIC_DISC_11:
-                        case MUSIC_DISC_WAIT:
-                        default:
-                            if (item.getType().isRecord()) {
-                                // Adjust armor stand pose based on the music disc used
-                                ArmorStandPose pose;
-                                switch (item.getType()) {
-                                    case MUSIC_DISC_CAT:
-                                        pose = ArmorStandPose.LOOKHANDS_POSE;
-                                        break;
-                                    case MUSIC_DISC_BLOCKS:
-                                        pose = ArmorStandPose.LOOKATTHIS_POSE;
-                                        break;
-                                    case MUSIC_DISC_CHIRP:
-                                        pose = ArmorStandPose.PRAY_POSE;
-                                        break;
-                                    case MUSIC_DISC_FAR:
-                                        pose = ArmorStandPose.HUG_POSE;
-                                        break;
-                                    case MUSIC_DISC_MALL:
-                                        pose = ArmorStandPose.DAB_POSE;
-                                        break;
-                                    case MUSIC_DISC_MELLOHI:
-                                        pose = ArmorStandPose.BRUH_POSE;
-                                        break;
-                                    case MUSIC_DISC_STAL:
-                                        pose = ArmorStandPose.DANCE1_POSE;
-                                        break;
-                                    case MUSIC_DISC_STRAD:
-                                        pose = ArmorStandPose.DANCE2_POSE;
-                                        break;
-                                    case MUSIC_DISC_WARD:
-                                        pose = ArmorStandPose.PROPOSE_POSE;
-                                        break;
-                                    case MUSIC_DISC_WAIT:
-                                        pose = ArmorStandPose.WAIT_POSE;
-                                        break;
-                                    case MUSIC_DISC_13:
-                                    case MUSIC_DISC_11:
-                                    default:
-                                        pose = ArmorStandPose.STRAIGHT_POSE;
-                                        break;
-                                }
-                                pose.setPose(armorStand);
-                            }
-                            break;
-                    }
+                            ArmorStandPose pose = musicDiscPoses.getOrDefault(item.getType(), ArmorStandPose.STRAIGHT_POSE);
+                            pose.setPose(armorStand);
+                        }
+                        break;
                 }
             }
         }
