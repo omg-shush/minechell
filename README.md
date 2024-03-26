@@ -21,8 +21,8 @@ Official Bukkit plugin for the EFSC
     - Sneak + Use a pickaxe to remove the armor stand base plate
     - Sneak + Use a smooth stone slab to add the base plate again
     - Sneak + Use a music disc to set the armor stand pose! Discs are not consumed.
-- Tag: TODO
-- Head: TODO
+- Tag: TODO explanation
+- Head: TODO explanation
 
 ## TODO
 - [ ] add some kind of wrench (debug stick), limited to only stairs/fences/etc
