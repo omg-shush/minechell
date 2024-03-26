@@ -10,7 +10,9 @@ import com.chellrose.minechell.hat.CommandHat;
 import com.chellrose.minechell.head.CommandHead;
 import com.chellrose.minechell.head.ListenerPlayerChargedCreeperDeath;
 import com.chellrose.minechell.head.ListenerWanderingTrader;
-import com.chellrose.minechell.itemframe.ListenerInvisibleItemFrame;
+import com.chellrose.minechell.invis.ListenerMakeInvis;
+import com.chellrose.minechell.invis.ListenerRemoveItemFromInvis;
+import com.chellrose.minechell.invis.ListenerWashInvis;
 import com.chellrose.minechell.sit.ListenerPlayerSitDown;
 import com.chellrose.minechell.tag.StateMachineTag;
 
@@ -40,10 +42,12 @@ public class App extends JavaPlugin {
         this.sit = new ListenerPlayerSitDown(this);
         pluginManager.registerEvents(this.sit, this);
 
-        // ItemFrame
-        pluginManager.registerEvents(new ListenerInvisibleItemFrame(), this);
+        // Invis item frames/armor stands
+        pluginManager.registerEvents(new ListenerMakeInvis(), this);
+        pluginManager.registerEvents(new ListenerWashInvis(), this);
+        pluginManager.registerEvents(new ListenerRemoveItemFromInvis(), this);
 
-        // ArmorStand
+        // Armor stands
         pluginManager.registerEvents(new ListenerArmorStand(), this);
 
         getLogger().info("MineChell enabled.");
