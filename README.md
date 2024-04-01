@@ -46,9 +46,15 @@ The portion inside `Value:"<texture>"` is what you need, ie you would run the fo
 ### Turbo Encabulator!
 - Sneak + Use on an armor stand to cycle through all poses.
 
+### Carry players!
+- Right-click with empty hand on a player with a saddle in their helmet slot to ride.
+- If you're carrying a player, sneak-left-click to eject them in the direction you're looking.
+
+### Help
+- Use `/minechell` in-game to get a link back to this document at any time!
+
 ## TODO
 - [ ] add some kind of wrench (debug stick), limited to only stairs/fences/etc
-- [ ] if saddle on head, then players can right click to ride. sneak-right-click the air to throw them off
 - [ ] chat channels
 - [ ] /yoink and /unyoink
 - [ ] Tag: require shown on dynmap
