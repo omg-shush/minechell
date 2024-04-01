@@ -44,6 +44,8 @@ The portion inside `Value:"<texture>"` is what you need, ie you would run the fo
 ```
 
 ### Turbo Encabulator!
+![Turbo Encabulator](img/turbo_encabulator.png)
+- Craft using an End Crystal diagonally-above an End Rod.
 - Sneak + Use on an armor stand to cycle through all poses.
 
 ### Carry players!
