@@ -21,17 +21,24 @@ public class ItemWrench {
     public static final String WRENCH_NBT_KEY = "caa_wrench";
     public static final Material WRENCH_MATERIAL = Material.TRIPWIRE_HOOK;
 
-    public ItemWrench(Plugin plugin) {
-        ItemStack wrench = new ItemStack(WRENCH_MATERIAL);
+    private static ItemStack wrench = null;
+    static {
+        wrench = new ItemStack(WRENCH_MATERIAL);
+
+        // Set NBT data on wrench
         NBTItem nbt = new NBTItem(wrench);
         nbt.setString(Util.PLUGIN_KEY, WRENCH_NBT_KEY);
         nbt.applyNBT(wrench);
         wrench.addUnsafeEnchantment(Enchantment.ARROW_INFINITE, 1);
+
+        // Set metadata on wrench
         ItemMeta itemMeta = wrench.getItemMeta();
         itemMeta.setDisplayName(ChatColor.LIGHT_PURPLE + "Turbo Encabulator");
         itemMeta.setLocalizedName("Turbo Encabulator");
         itemMeta.setUnbreakable(true);
         itemMeta.setAttributeModifiers(null);
+
+        // Set lore on wrench
         List<String> lore = new ArrayList<>();
         lore.add(ChatColor.GRAY + "--------------------------------------------------------------------------------");
         lore.add(ChatColor.DARK_AQUA + "" + ChatColor.ITALIC + "For a number of years now, work has been proceeding in order to bring ");
@@ -42,14 +49,16 @@ public class ItemWrench {
         lore.add(ChatColor.GRAY + "--------------------------------------------------------------------------------");
         itemMeta.setLore(lore);
         itemMeta.setCustomModelData(42);
+
         wrench.setItemMeta(itemMeta);
+    }
+
+    public ItemWrench(Plugin plugin) {
         NamespacedKey key = new NamespacedKey(plugin, WRENCH_NBT_KEY);
-        ShapedRecipe recipe = new ShapedRecipe(key, wrench);
-        recipe.shape("ab", "cd");
-        recipe.setIngredient('a', Material.AIR);
+        ShapedRecipe recipe = new ShapedRecipe(key, ItemWrench.wrench);
+        recipe.shape(" b", "c ");
         recipe.setIngredient('b', Material.END_CRYSTAL);
         recipe.setIngredient('c', Material.END_ROD);
-        recipe.setIngredient('d', Material.AIR);
         Bukkit.addRecipe(recipe);
     }
 

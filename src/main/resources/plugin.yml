@@ -17,6 +17,10 @@ commands:
     description: Play a game of tag!
     usage: /tag [list|online|join|leave|vote|unvote|set]
     permission: minechell.tag
+  minechell:
+    description: Help & config for MineChell plugin
+    usage: /minechell
+    permission: minechell.minechell
 permissions:
   minechell.hat:
     description: Allows a player to use /hat
@@ -30,3 +34,6 @@ permissions:
   minechell.tag.set:
     description: Manually override the current tagged player
     default: op
+  minechell.minechell:
+    description: Allows a player to use /minechell
+    default: true

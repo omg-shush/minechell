@@ -13,6 +13,7 @@ import com.chellrose.minechell.head.ListenerWanderingTrader;
 import com.chellrose.minechell.invis.ListenerMakeInvis;
 import com.chellrose.minechell.invis.ListenerRemoveItemFromInvis;
 import com.chellrose.minechell.invis.ListenerWashInvis;
+import com.chellrose.minechell.minechell.CommandMineChell;
 import com.chellrose.minechell.sit.ListenerPlayerSitDown;
 import com.chellrose.minechell.tag.StateMachineTag;
 import com.chellrose.minechell.wrench.ItemWrench;
@@ -57,6 +58,9 @@ public class App extends JavaPlugin {
         new ItemWrench(this);
         pluginManager.registerEvents(new ListenerItemWrench(), this);
         pluginManager.registerEvents(new ListenerWrenchArmorStand(), this);
+
+        // MineChell command
+        this.getCommand(CommandMineChell.COMMAND).setExecutor(new CommandMineChell());
 
         getLogger().info("MineChell enabled.");
     }

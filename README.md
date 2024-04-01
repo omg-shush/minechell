@@ -1,4 +1,4 @@
-# Minechell
+# MineChell
 Official Bukkit plugin for the EFSC
 
 ## Features
