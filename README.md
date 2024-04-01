@@ -49,7 +49,6 @@ The portion inside `Value:"<texture>"` is what you need, ie you would run the fo
 ## TODO
 - [ ] add some kind of wrench (debug stick), limited to only stairs/fences/etc
 - [ ] if saddle on head, then players can right click to ride. sneak-right-click the air to throw them off
-- [ ] tag: clear glowing effect when untagged
 - [ ] chat channels
 - [ ] /yoink and /unyoink
 - [ ] Tag: require shown on dynmap

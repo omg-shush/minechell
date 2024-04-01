@@ -6,6 +6,7 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.chellrose.minechell.armorstand.ListenerArmorStand;
+import com.chellrose.minechell.carry.ListenerPlayerCarry;
 import com.chellrose.minechell.hat.CommandHat;
 import com.chellrose.minechell.head.CommandHead;
 import com.chellrose.minechell.head.ListenerPlayerChargedCreeperDeath;
@@ -61,6 +62,9 @@ public class App extends JavaPlugin {
 
         // MineChell command
         this.getCommand(CommandMineChell.COMMAND).setExecutor(new CommandMineChell());
+
+        // Carry
+        pluginManager.registerEvents(new ListenerPlayerCarry(), this);
 
         getLogger().info("MineChell enabled.");
     }

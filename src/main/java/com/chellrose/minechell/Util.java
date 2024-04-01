@@ -17,6 +17,12 @@ public class Util {
         player.spigot().sendMessage(c);
     }
 
+    /**
+     * Checks if the given ItemStack has a valid item.
+     *
+     * @param item The ItemStack to check.
+     * @return true if the ItemStack is not null and has a valid item, false otherwise.
+     */
     public static boolean hasItem(ItemStack item) {
         return item != null && item.getType() != Material.AIR;
     }
