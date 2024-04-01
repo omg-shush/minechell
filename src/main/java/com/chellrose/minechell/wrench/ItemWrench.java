@@ -63,7 +63,7 @@ public class ItemWrench {
     }
 
     public static boolean isWrench(ItemStack item) {
-        if (item != null) {
+        if (item != null && item.getType() != Material.AIR && item.getAmount() > 0) {
             NBTItem nbt = new NBTItem(item);
             return item.getType() == WRENCH_MATERIAL && nbt.hasTag(Util.PLUGIN_KEY) && nbt.getString(Util.PLUGIN_KEY).equals(WRENCH_NBT_KEY);
         }
