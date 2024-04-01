@@ -17,6 +17,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.potion.PotionEffectType;
 
 import com.chellrose.minechell.Util;
 
@@ -29,6 +30,8 @@ import net.md_5.bungee.api.chat.TranslatableComponent;
 import net.md_5.bungee.api.chat.hover.content.Item;
 
 public class StateMachineTag {
+    public static final long TAGBACK_MILLIS = 10_000;
+
     protected StoreTag store;
     protected JavaPlugin plugin;
 
@@ -100,16 +103,29 @@ public class StateMachineTag {
         }
     }
 
+    /**
+    * Checks if a player is currently immune to tagbacks, based on the last tagged player and the time elapsed since the last tagging.
+     *
+     * @param tagged the player who is being tagged
+     * @return true if this is a tagback, false otherwise
+     */
     public boolean isTagBack(Player tagged) {
-        return tagged != null && tagged.getUniqueId().equals(this.lastTagged) && System.currentTimeMillis() - this.lastTaggedTime < 10_000;
+        return tagged != null && tagged.getUniqueId().equals(this.lastTagged) && System.currentTimeMillis() - this.lastTaggedTime < TAGBACK_MILLIS;
     }
 
+    /**
+     * Tags a player with another player using a specified item.
+     *
+     * @param tagged The player being tagged.
+     * @param tagger The player doing the tagging.
+     * @param with   The item used for tagging. If null, the tag is done with a fist.
+     */
     public void tagWith(Player tagged, Player tagger, ItemStack with) {
         if (isTagBack(tagged)) {
             Player target = tagged == null ? tagger : tagged;
             target.getWorld().playSound(target, Sound.ENTITY_VILLAGER_HURT, 0.4f, 1.25f);
             Util.sendItalic(tagger, "No tagbacks!");
-        } else {
+        } else { // Tag successful
             BaseComponent itemName = new TextComponent("a FIST!");
             if (with != null && with.getType() != Material.AIR) {
                 if (with.hasItemMeta() && with.getItemMeta().hasDisplayName()) {
@@ -139,18 +155,23 @@ public class StateMachineTag {
             message.addExtra(taggerName);
             if (tagged == null) {
                 // Dummy tag
-                if (with == null) {
-                    message.addExtra(" tagged an armor stand!");
-                } else {
-                    message.addExtra(" tagged an armor stand with ");
-                    message.addExtra(tail);
-                }
-                message.setItalic(true);
-                tagger.spigot().sendMessage(message);
+                // TODO maybe enable a debug mode under which extra messages like these are sent?
+                // if (with == null) {
+                //     message.addExtra(" tagged an armor stand!");
+                // } else {
+                //     message.addExtra(" tagged an armor stand with ");
+                //     message.addExtra(tail);
+                // }
+                // message.setItalic(true);
+                // tagger.spigot().sendMessage(message);
             } else {
+                // Tag real player
                 this.lastTagged = this.store.getTaggedPlayer();
                 this.lastTaggedTime = System.currentTimeMillis();
                 this.store.setTaggedPlayer(tagged);
+
+                // To avoid confusion, make sure only `tagged` is glowing
+                tagger.removePotionEffect(PotionEffectType.GLOWING);
 
                 message.addExtra(" tagged ");
                 BaseComponent taggedName = new TextComponent(tagged.getName());
@@ -168,6 +189,11 @@ public class StateMachineTag {
         }
     }
 
+    /**
+     * Tags the specified player as "it" from an unspecified source.
+     *
+     * @param player The player to be tagged.
+     */
     public void tag(OfflinePlayer player) {
         this.store.setTaggedPlayer(player);
         if (player.isOnline()) {

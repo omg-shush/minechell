@@ -84,7 +84,7 @@ public class ListenerArmorStand implements Listener {
                             // Adjust armor stand pose based on the music disc used
                             event.setCancelled(true);
                             ArmorStandPose pose = musicDiscPoses.getOrDefault(item.getType(), ArmorStandPose.STRAIGHT_POSE);
-                            pose.setPose(armorStand);
+                            pose.apply(armorStand);
                         }
                         break;
                 }

@@ -97,6 +97,20 @@ public class ArmorStandPose {
         new EulerAngle(0.0, 32.0, 0.0f)
     );
 
+    private static final ArmorStandPose[] POSES = {
+        STRAIGHT_POSE,
+        LOOKHANDS_POSE,
+        LOOKATTHIS_POSE,
+        WAIT_POSE,
+        PRAY_POSE,
+        HUG_POSE,
+        DAB_POSE,
+        BRUH_POSE,
+        DANCE1_POSE,
+        DANCE2_POSE,
+        PROPOSE_POSE
+    };
+
     private final EulerAngle headAngles;
     private final EulerAngle leftArmAngles;
     private final EulerAngle rightArmAngles;
@@ -112,11 +126,51 @@ public class ArmorStandPose {
         this.rightLegAngles = new EulerAngle(Math.toRadians(rightLegAngles.getX()), Math.toRadians(rightLegAngles.getY()), Math.toRadians(rightLegAngles.getZ()));
     }
 
-    public void setPose(ArmorStand armorStand) {
+    // Construct ArmorStandPose based on an existing ArmorStand
+    public ArmorStandPose(ArmorStand armorStand) {
+        this.headAngles = armorStand.getHeadPose();
+        this.leftArmAngles = armorStand.getLeftArmPose();
+        this.rightArmAngles = armorStand.getRightArmPose();
+        this.leftLegAngles = armorStand.getLeftLegPose();
+        this.rightLegAngles = armorStand.getRightLegPose();
+    }
+
+    /**
+     * Applies this pose to the given ArmorStand.
+     *
+     * @param armorStand the ArmorStand to apply this pose to
+     */
+    public void apply(ArmorStand armorStand) {
         armorStand.setHeadPose(headAngles);
         armorStand.setLeftArmPose(leftArmAngles);
         armorStand.setRightArmPose(rightArmAngles);
         armorStand.setLeftLegPose(leftLegAngles);
         armorStand.setRightLegPose(rightLegAngles);
+    }
+
+    public boolean equals(ArmorStandPose other) {
+        return this.headAngles.equals(other.headAngles) &&
+               this.leftArmAngles.equals(other.leftArmAngles) &&
+               this.rightArmAngles.equals(other.rightArmAngles) &&
+               this.leftLegAngles.equals(other.leftLegAngles) &&
+               this.rightLegAngles.equals(other.rightLegAngles);
+    }
+
+    /**
+     * Returns the index of the current pose in the list of available poses.
+     *
+     * @return The index of the current pose, or -1 if the pose is not found.
+     */
+    public int index() {
+        for (int i = 0; i < POSES.length; i++) {
+            if (this.equals(POSES[i])) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    public static ArmorStandPose fromIndex(int index) {
+        return POSES[Math.floorMod(index, POSES.length)];
     }
 }

@@ -2,7 +2,7 @@ main: com.chellrose.minechell.App
 name: MineChell
 author: omg_shush
 website: github.com/omg-shush/minechell
-version: 0.4.1
+version: 0.5
 api-version: '1.20'
 commands:
   hat:
@@ -10,8 +10,8 @@ commands:
     usage: /hat
     permission: minechell.hat
   head:
-    description: Apply a skin to a blank player head
-    usage: /head
+    description: Apply a texture to a cleaned player head
+    usage: /head <player|uuid|value>
     permission: minechell.head
   tag:
     description: Play a game of tag!

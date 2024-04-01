@@ -9,6 +9,8 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 
 public class Util {
+    public static final String PLUGIN_KEY = "minechell";
+
     public static void sendItalic(Player player, String message) {
         BaseComponent c = new TextComponent(message);
         c.setItalic(true);
