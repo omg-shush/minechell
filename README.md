@@ -48,7 +48,7 @@ The portion inside `Value:"<texture>"` is what you need, ie you would run the fo
 - Craft using an End Crystal diagonally-above an End Rod.
 - Sneak + Use on an armor stand to cycle through all poses.
 - Sneak + Use on a block to copy its state, and Use to paste on other similar blocks.
-    - Works on: Stairs, Slabs, Fences, Furnaces
+    - Works on: Stairs, Slabs, Fences, Furnaces, Iron Bars, Walls, Glass Panes
 
 ### Carry players!
 - Right-click with empty hand on a player with a saddle in their helmet slot to ride.
