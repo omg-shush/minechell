@@ -10,6 +10,7 @@ import net.md_5.bungee.api.chat.TextComponent;
 
 public class Util {
     public static final String PLUGIN_KEY = "minechell";
+    public static final String ITEM_KEY = "caa_item";
 
     public static void sendItalic(Player player, String message) {
         BaseComponent c = new TextComponent(message);

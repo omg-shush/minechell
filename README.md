@@ -47,6 +47,8 @@ The portion inside `Value:"<texture>"` is what you need, ie you would run the fo
 ![Turbo Encabulator](img/turbo_encabulator.png)
 - Craft using an End Crystal diagonally-above an End Rod.
 - Sneak + Use on an armor stand to cycle through all poses.
+- Sneak + Use on a block to copy its state, and Use to paste on other similar blocks.
+    - Works on: Stairs, Slabs, Fences, Furnaces
 
 ### Carry players!
 - Right-click with empty hand on a player with a saddle in their helmet slot to ride.
@@ -56,7 +58,7 @@ The portion inside `Value:"<texture>"` is what you need, ie you would run the fo
 - Use `/minechell` in-game to get a link back to this document at any time!
 
 ## TODO
-- [ ] add some kind of wrench (debug stick), limited to only stairs/fences/etc
+- [x] add some kind of wrench (debug stick), limited to only stairs/fences/etc
 - [ ] chat channels
 - [ ] /yoink and /unyoink
 - [ ] Tag: require shown on dynmap

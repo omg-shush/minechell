@@ -20,6 +20,7 @@ import com.chellrose.minechell.tag.StateMachineTag;
 import com.chellrose.minechell.wrench.ItemWrench;
 import com.chellrose.minechell.wrench.ListenerItemWrench;
 import com.chellrose.minechell.wrench.ListenerWrenchArmorStand;
+import com.chellrose.minechell.wrench.ListenerWrenchBlock;
 
 public class App extends JavaPlugin {
     public static Logger logger;
@@ -59,6 +60,7 @@ public class App extends JavaPlugin {
         new ItemWrench(this);
         pluginManager.registerEvents(new ListenerItemWrench(), this);
         pluginManager.registerEvents(new ListenerWrenchArmorStand(), this);
+        pluginManager.registerEvents(new ListenerWrenchBlock(), this);
 
         // MineChell command
         this.getCommand(CommandMineChell.COMMAND).setExecutor(new CommandMineChell());
