@@ -12,8 +12,10 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.type.Fence;
 import org.bukkit.block.data.type.Furnace;
+import org.bukkit.block.data.type.GlassPane;
 import org.bukkit.block.data.type.Slab;
 import org.bukkit.block.data.type.Stairs;
+import org.bukkit.block.data.type.Wall;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.Action;
@@ -26,11 +28,11 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 
 public class ListenerWrenchBlock implements Listener {
-    private static final Map<String, WrenchBlockClipboard> FACTORIES = new HashMap<>();
+    private static final Map<String, WrenchBlockClipboard> CLIPBOARDS = new HashMap<>();
     
     static {
         // Stairs
-        FACTORIES.put(Stairs.class.getName(), new WrenchBlockClipboard() {
+        CLIPBOARDS.put(Stairs.class.getName(), new WrenchBlockClipboard() {
             @Override
             public void paste(BlockData template, BlockData data) {
                 Stairs stairs = (Stairs)template;
@@ -42,7 +44,7 @@ public class ListenerWrenchBlock implements Listener {
         });
 
         // Slabs
-        FACTORIES.put(Slab.class.getName(), new WrenchBlockClipboard() {
+        CLIPBOARDS.put(Slab.class.getName(), new WrenchBlockClipboard() {
             @Override
             public void paste(BlockData template, BlockData data) {
                 Slab slab = (Slab)template;
@@ -52,7 +54,7 @@ public class ListenerWrenchBlock implements Listener {
         });
 
         // Fences
-        FACTORIES.put(Fence.class.getName(), new WrenchBlockClipboard() {
+        CLIPBOARDS.put(Fence.class.getName(), new WrenchBlockClipboard() {
             @Override
             public void paste(BlockData template, BlockData data) {
                 Fence fence = (Fence)template;
@@ -63,8 +65,32 @@ public class ListenerWrenchBlock implements Listener {
             }
         });
 
+        // Walls
+        CLIPBOARDS.put(Wall.class.getName(), new WrenchBlockClipboard() {
+            @Override
+            public void paste(BlockData template, BlockData data) {
+                Wall wall = (Wall)template;
+                Wall target = (Wall)data;
+                for (BlockFace face : new BlockFace[]{BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST, BlockFace.UP}) {
+                    target.setHeight(face, wall.getHeight(face));
+                }
+            }
+        });
+
+        // Glass panes
+        CLIPBOARDS.put(GlassPane.class.getName(), new WrenchBlockClipboard() {
+            @Override
+            public void paste(BlockData template, BlockData data) {
+                GlassPane pane = (GlassPane)template;
+                GlassPane target = (GlassPane)data;
+                for (BlockFace face : target.getAllowedFaces()) {
+                    target.setFace(face, pane.hasFace(face));
+                }
+            }
+        });
+
         // Furnaces
-        FACTORIES.put(Furnace.class.getName(), new WrenchBlockClipboard() {
+        CLIPBOARDS.put(Furnace.class.getName(), new WrenchBlockClipboard() {
             @Override
             public void paste(BlockData template, BlockData data) {
                 Furnace furnace = (Furnace)template;
@@ -99,7 +125,7 @@ public class ListenerWrenchBlock implements Listener {
                     Class<?> iface = null;
                     WrenchBlockClipboard factory = null;
                     for (Class<?> clazzIface : data.getClass().getInterfaces()) {
-                        WrenchBlockClipboard clazzFactory = FACTORIES.get(clazzIface.getName());
+                        WrenchBlockClipboard clazzFactory = CLIPBOARDS.get(clazzIface.getName());
                         if (clazzFactory != null) {
                             iface = clazzIface;
                             factory = clazzFactory;
