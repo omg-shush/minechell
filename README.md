@@ -58,7 +58,6 @@ The portion inside `Value:"<texture>"` is what you need, ie you would run the fo
 - Use `/minechell` in-game to get a link back to this document at any time!
 
 ## TODO
-- [x] add some kind of wrench (debug stick), limited to only stairs/fences/etc
 - [ ] chat channels
 - [ ] /yoink and /unyoink
 - [ ] Tag: require shown on dynmap
