@@ -35,6 +35,11 @@ public class CommandMineChell implements CommandExecutor {
             msg.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(new BaseComponent[] { title }), new Text(new BaseComponent[] { url })));
             sender.spigot().sendMessage(msg);
             return true;
+        } else if (args.length == 1 && args[0] == "version") {
+            BaseComponent msg = new TextComponent("MineChell version " + getClass().getPackage().getImplementationVersion());
+            msg.setColor(ChatColor.LIGHT_PURPLE);
+            sender.spigot().sendMessage(msg);
+            return true;
         } else {
             return false;
         }

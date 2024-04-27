@@ -16,7 +16,7 @@ public class ListenerMakeInvis implements Listener {
     public void onProjectileHit(ProjectileHitEvent event) {
         if (event.getEntity() instanceof Arrow) {
             Arrow arrow = (Arrow)event.getEntity();
-            if (arrow.getBasePotionData().getType() == PotionType.INVISIBILITY) {
+            if (arrow.getBasePotionType() == PotionType.INVISIBILITY) {
                 Entity hit = event.getHitEntity();
                 if (hit != null) {
                     switch (hit.getType()) {

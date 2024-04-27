@@ -18,10 +18,9 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.MerchantInventory;
 import org.bukkit.inventory.MerchantRecipe;
+import org.bukkit.inventory.meta.SkullMeta;
 
 import com.chellrose.minechell.Util;
-
-import de.tr7zw.changeme.nbtapi.NBTItem;
 
 public class ListenerWanderingTrader implements Listener {
     private Random random;
@@ -56,7 +55,7 @@ public class ListenerWanderingTrader implements Listener {
             MerchantInventory mi = (MerchantInventory)event.getInventory();
             ItemStack head = this.isHeadTrade(mi);
             if (head != null) {
-                if (new NBTItem(head).hasTag("SkullOwner")) {
+                if (((SkullMeta)head.getItemMeta()).hasOwner()) {
                     // Allow dirty heads
                     event.setResult(Result.DEFAULT);
                 } else if (event.getRawSlot() != 2) {

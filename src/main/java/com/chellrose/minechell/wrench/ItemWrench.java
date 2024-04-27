@@ -8,50 +8,43 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
-
-import com.chellrose.minechell.Util;
-
-import de.tr7zw.changeme.nbtapi.NBTCompound;
-import de.tr7zw.changeme.nbtapi.NBTItem;
 
 /**
  * Represents a wrench item in the game.
  * The wrench can be used for various purposes, such as modifying block states.
  */
-/**
- * Represents a wrench item in the game.
- * The wrench is used for various purposes, such as modifying block data.
- */
 public class ItemWrench {
-    public static final String WRENCH_NBT_KEY = "caa_wrench";
-    public static final String WRENCH_RECIPE_KEY = "caa_crafting_wrench";
-    public static final String BLOCK_DATA_NBT_KEY = "block_data";
     public static final Material WRENCH_MATERIAL = Material.TRIPWIRE_HOOK;
+    private Plugin plugin;
+    private ItemStack wrench;
+    private NamespacedKey isWrenchKey;
+    private NamespacedKey wrenchRecipeKey;
+    private NamespacedKey blockDataKey;
 
-    private static ItemStack WRENCH = null;
-    static {
-        WRENCH = new ItemStack(WRENCH_MATERIAL);
+    public ItemWrench(Plugin plugin) {
+        this.plugin = plugin;
 
-        // Set NBT data on wrench
-        NBTItem nbt = new NBTItem(WRENCH);
-        NBTCompound pluginNbt = nbt.addCompound(Util.PLUGIN_KEY);
-        pluginNbt.setString(Util.ITEM_KEY, WRENCH_NBT_KEY);
-        nbt.applyNBT(WRENCH);
-        WRENCH.addUnsafeEnchantment(Enchantment.ARROW_INFINITE, 1);
+        this.isWrenchKey = new NamespacedKey(plugin, "caa_wrench");
+        this.wrenchRecipeKey = new NamespacedKey(plugin, "caa_crafting_wrench");
+        this.blockDataKey = new NamespacedKey(plugin, "caa_block_data");
 
-        // Set metadata on wrench
-        ItemMeta itemMeta = WRENCH.getItemMeta();
-        itemMeta.setDisplayName(ChatColor.LIGHT_PURPLE + "Turbo Encabulator");
-        itemMeta.setLocalizedName("Turbo Encabulator");
-        itemMeta.setUnbreakable(true);
-        itemMeta.setAttributeModifiers(null);
+        // Item meta
+        this.wrench = new ItemStack(WRENCH_MATERIAL);
+        ItemMeta wrenchMeta = this.wrench.getItemMeta();
 
-        // Set lore on wrench
+        PersistentDataContainer container = wrenchMeta.getPersistentDataContainer();
+        container.set(this.isWrenchKey, PersistentDataType.BOOLEAN, true);
+
+        wrenchMeta.setEnchantmentGlintOverride(true);
+        wrenchMeta.setDisplayName(ChatColor.LIGHT_PURPLE + "Turbo Encabulator");
+        wrenchMeta.setUnbreakable(true);
+        wrenchMeta.setAttributeModifiers(null);
         List<String> lore = new ArrayList<>();
         lore.add(ChatColor.GRAY + "--------------------------------------------------------------------------------");
         lore.add(ChatColor.DARK_AQUA + "" + ChatColor.ITALIC + "For a number of years now, work has been proceeding in order to bring ");
@@ -60,46 +53,50 @@ public class ItemWrench {
         lore.add(ChatColor.DARK_AQUA + "" + ChatColor.ITALIC + "would also be capable of automatically synchronizing cardinal grammeters. ");
         lore.add(ChatColor.DARK_AQUA + "" + ChatColor.ITALIC + "Such an instrument is the " + ChatColor.BOLD + ChatColor.ITALIC + "Turbo Encabulator" + ChatColor.DARK_AQUA + ".");
         lore.add(ChatColor.GRAY + "--------------------------------------------------------------------------------");
-        itemMeta.setLore(lore);
-        itemMeta.setCustomModelData(42);
+        wrenchMeta.setLore(lore);
+        wrenchMeta.setCustomModelData(42);
 
-        WRENCH.setItemMeta(itemMeta);
-    }
+        this.wrench.setItemMeta(wrenchMeta);
 
-    public ItemWrench(Plugin plugin) {
-        NamespacedKey key = new NamespacedKey(plugin, WRENCH_RECIPE_KEY);
-        ShapedRecipe recipe = new ShapedRecipe(key, ItemWrench.WRENCH);
+        // Crafting recipe
+        ShapedRecipe recipe = new ShapedRecipe(wrenchRecipeKey, this.wrench);
         recipe.shape(" b", "c ");
         recipe.setIngredient('b', Material.END_CRYSTAL);
         recipe.setIngredient('c', Material.END_ROD);
         Bukkit.addRecipe(recipe);
     }
 
-    public static boolean isWrench(ItemStack item) {
+    public boolean isWrench(ItemStack item) {
         if (item != null && item.getType() != Material.AIR && item.getAmount() > 0) {
-            NBTItem nbt = new NBTItem(item);
-            return item.getType() == WRENCH_MATERIAL && nbt.hasTag(Util.PLUGIN_KEY) &&
-                nbt.getCompound(Util.PLUGIN_KEY) != null && nbt.getCompound(Util.PLUGIN_KEY).getString(Util.ITEM_KEY) != null &&
-                nbt.getCompound(Util.PLUGIN_KEY).getString(Util.ITEM_KEY).equals(WRENCH_NBT_KEY);
+            ItemMeta meta = item.getItemMeta();
+            if (meta != null) {
+                PersistentDataContainer container = meta.getPersistentDataContainer();
+                return container.getOrDefault(this.isWrenchKey, PersistentDataType.BOOLEAN, false);
+            }
         }
         return false;
     }
 
-    public static void setBlockData(ItemStack wrench, Class<?> clazz, BlockData data) {
-        NBTItem nbt = new NBTItem(wrench);
-        NBTCompound blockDataNbt = nbt.getCompound(Util.PLUGIN_KEY).addCompound(BLOCK_DATA_NBT_KEY); // Create if not exists
-        blockDataNbt.setString(clazz.getName(), data.getAsString());
-        nbt.applyNBT(wrench);
+    public void setBlockData(ItemStack wrench, Class<?> clazz, BlockData data) {
+        ItemMeta meta = wrench.getItemMeta();
+        PersistentDataContainer container = meta.getPersistentDataContainer();
+        PersistentDataContainer blockDataContainer = container.getOrDefault(
+            this.blockDataKey,
+            PersistentDataType.TAG_CONTAINER,
+            container.getAdapterContext().newPersistentDataContainer());
+        blockDataContainer.set(new NamespacedKey(this.plugin, clazz.getName()), PersistentDataType.STRING, data.getAsString());
+        wrench.setItemMeta(meta);
     }
 
-    public static <T> T getBlockData(ItemStack wrench, Class<T> clazz) {
-        NBTItem nbt = new NBTItem(wrench);
-        NBTCompound blockDataNbt = nbt.getCompound(Util.PLUGIN_KEY).getCompound(BLOCK_DATA_NBT_KEY);
-        if (blockDataNbt != null) {
-            String strData = blockDataNbt.getString(clazz.getName());
-            if (strData != null) {
+    public <T> T getBlockData(ItemStack wrench, Class<T> clazz) {
+        ItemMeta meta = wrench.getItemMeta();
+        PersistentDataContainer container = meta.getPersistentDataContainer();
+        PersistentDataContainer blockDataContainer = container.get(this.blockDataKey, PersistentDataType.TAG_CONTAINER);
+        if (blockDataContainer != null) {
+            String blockData = blockDataContainer.get(this.blockDataKey, PersistentDataType.STRING);
+            if (blockData != null) {
                 try {
-                    BlockData data = Bukkit.getServer().createBlockData(strData);
+                    BlockData data = Bukkit.getServer().createBlockData(blockData);
                     return clazz.cast(data);
                 } catch (IllegalArgumentException e) {
                     return null;

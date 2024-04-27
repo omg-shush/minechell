@@ -1,6 +1,8 @@
 package com.chellrose.minechell.head;
 
+import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -17,14 +19,13 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.SkullMeta;
+import org.bukkit.profile.PlayerProfile;
+import org.bukkit.profile.PlayerTextures;
 
 import com.chellrose.minechell.Util;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-
-import de.tr7zw.changeme.nbtapi.NBTCompound;
-import de.tr7zw.changeme.nbtapi.NBTItem;
-import de.tr7zw.changeme.nbtapi.NBTListCompound;
 
 public class CommandHead implements CommandExecutor {
     public static final String COMMAND = "head";
@@ -37,10 +38,14 @@ public class CommandHead implements CommandExecutor {
             ItemStack handStack = inv.getItemInMainHand();
             
             if (handStack.getType() == Material.PLAYER_HEAD) {
-                NBTItem handNbt = new NBTItem(handStack);
-                if (!handNbt.hasNBTData()) {
+                SkullMeta headMeta = (SkullMeta)handStack.getItemMeta();
+                if (!headMeta.hasOwner()) {
                     if (args.length == 1) {
-                        this.apply(player, args[0], handNbt);
+                        headMeta = this.apply(player, args[0], headMeta);
+                        if (headMeta != null) {
+                            handStack.setItemMeta(headMeta);
+                            inv.setItemInMainHand(handStack);
+                        }
                     } else {
                         player.sendMessage("Usage: /head <player name, uuid, or value>");
                     }
@@ -56,44 +61,53 @@ public class CommandHead implements CommandExecutor {
         return true;
     }
 
-    private void apply(Player player, String arg, NBTItem item) {
+    private SkullMeta apply(Player player, String arg, SkullMeta head) {
         try {
             try {
                 UUID uuid = UUID.fromString(arg);
-                applyUUID(uuid, item);
+                applyUUID(uuid, head);
             } catch (IllegalArgumentException e) {
                 try {
                     new String(Base64.getDecoder().decode(arg), StandardCharsets.UTF_8);
-                    applyBase64(arg, item);
+                    applyBase64(arg, head);
                 } catch (IllegalArgumentException e2) {
-                    applyOwner(arg, item);
+                    applyOwner(arg, head);
                 }
             }
         } catch (IllegalArgumentException e) {
             player.sendMessage("Invalid name, uuid, or value");
-            return;
+            return null;
         }
-        player.getInventory().setItemInMainHand(item.getItem());
+        return head;
     }
 
-    public static void applyUUID(UUID uuid, NBTItem item) {
-        NBTCompound skullOwner = item.addCompound("SkullOwner");
-        skullOwner.setUUID("Id", uuid);
-        skullOwner.setString("Name", Bukkit.getOfflinePlayer(uuid).getName());
+    public static void applyUUID(UUID uuid, SkullMeta head) {
+        PlayerProfile profile = Bukkit.createPlayerProfile(uuid);
+        head.setOwnerProfile(profile);
     }
 
-    private void applyBase64(String base64, NBTItem item) {
-        NBTCompound skullOwner = item.addCompound("SkullOwner");
-        skullOwner.setUUID("Id", UUID.randomUUID());
-        NBTListCompound texture = skullOwner.addCompound("Properties").getCompoundList("textures").addCompound();
-        texture.setString("Value", base64);
+    private void applyBase64(String base64, SkullMeta head) {
+        // Decode base64
+        String json = new String(Base64.getDecoder().decode(base64), StandardCharsets.UTF_8);
+        String url = JsonParser.parseString(json).getAsJsonObject()
+            .get("textures").getAsJsonObject()
+            .get("SKIN").getAsJsonObject()
+            .get("url").getAsString();
+        try {
+            URL urlObj = URI.create(url).toURL();
+            PlayerProfile profile = Bukkit.createPlayerProfile(base64);
+            PlayerTextures textures = profile.getTextures();
+            textures.setSkin(urlObj);
+            profile.setTextures(textures);
+            head.setOwnerProfile(profile);
+        } catch (MalformedURLException e) {
+            return; // TODO validate outside
+        }
     }
 
-    private void applyOwner(String owner, NBTItem item) {
-        NBTCompound skullOwner = item.addCompound("SkullOwner");
-        skullOwner.setString("Name", owner);
-        skullOwner.setUUID("Id", getUUIDFromPlayerName(owner));
-        item.setString("SkullOwner", owner);
+    private void applyOwner(String owner, SkullMeta head) {
+        PlayerProfile profile = Bukkit.createPlayerProfile(owner);
+        head.setOwnerProfile(profile);
     }
 
     public static UUID getUUIDFromPlayerName(String player) {

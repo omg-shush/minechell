@@ -8,8 +8,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.ItemStack;
-
-import de.tr7zw.changeme.nbtapi.NBTItem;
+import org.bukkit.inventory.meta.SkullMeta;
 
 public class ListenerPlayerChargedCreeperDeath implements Listener {
     @EventHandler
@@ -19,9 +18,9 @@ public class ListenerPlayerChargedCreeperDeath implements Listener {
                 Player player = (Player)event.getEntity();
                 if (event.getFinalDamage() >= player.getHealth()) {
                     ItemStack head = new ItemStack(Material.PLAYER_HEAD);
-                    NBTItem nbt = new NBTItem(head);
-                    CommandHead.applyUUID(player.getUniqueId(), nbt);
-                    head = nbt.getItem();
+                    SkullMeta headMeta = (SkullMeta)head.getItemMeta();
+                    headMeta.setOwningPlayer(player);
+                    head.setItemMeta(headMeta);
                     player.getWorld().dropItemNaturally(player.getEyeLocation(), head);
                 }
             }

@@ -112,12 +112,18 @@ public class ListenerWrenchBlock implements Listener {
         public void paste(BlockData template, BlockData data);
     }
 
+    private ItemWrench itemWrench;
+
+    public ListenerWrenchBlock(ItemWrench itemWrench) {
+        this.itemWrench = itemWrench;
+    }
+
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
         if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
             Player player = event.getPlayer();
             ItemStack item = player.getInventory().getItemInMainHand();
-            if (ItemWrench.isWrench(item)) {
+            if (this.itemWrench.isWrench(item)) {
                 ItemStack wrench = item;
                 Block block = event.getClickedBlock();
                 BlockData data = block.getBlockData();
@@ -135,7 +141,7 @@ public class ListenerWrenchBlock implements Listener {
                         event.setCancelled(true);
                         if (player.isSneaking()) {
                             // Copy data
-                            ItemWrench.setBlockData(wrench, iface, data);
+                            this.itemWrench.setBlockData(wrench, iface, data);
                             BaseComponent msg = new TextComponent("Copied " + iface.getSimpleName().toLowerCase());
                             msg.setColor(ChatColor.LIGHT_PURPLE);
                             msg.setItalic(true);
@@ -143,7 +149,7 @@ public class ListenerWrenchBlock implements Listener {
                             player.playSound(block.getLocation(), Sound.ENTITY_VILLAGER_YES, 1.0f, 1.0f);
                         } else {
                             // Paste data
-                            BlockData template = (BlockData)ItemWrench.getBlockData(wrench, iface);
+                            BlockData template = (BlockData)this.itemWrench.getBlockData(wrench, iface);
                             if (template == null) {
                                 BaseComponent msg = new TextComponent("No block data to paste. Sneak-right-click an equivalent block type to copy");
                                 msg.setColor(ChatColor.LIGHT_PURPLE);
@@ -159,7 +165,7 @@ public class ListenerWrenchBlock implements Listener {
                                 player.spigot().sendMessage(ChatMessageType.ACTION_BAR, msg);
                                 player.playSound(block.getLocation(), block.getBlockData().getSoundGroup().getPlaceSound(), 1.0f, 1.0f);
                                 block.getWorld().spawnParticle(
-                                    Particle.BLOCK_DUST,
+                                    Particle.BLOCK,
                                     block.getLocation().add(0.5, 0.5, 0.5),
                                     10,
                                     0.25, 0.25, 0.25,

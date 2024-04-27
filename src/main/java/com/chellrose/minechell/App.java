@@ -27,6 +27,7 @@ public class App extends JavaPlugin {
 
     private StateMachineTag tag;
     private ListenerPlayerSitDown sit;
+    private ItemWrench wrench;
 
     @Override
     public void onEnable() {
@@ -57,10 +58,10 @@ public class App extends JavaPlugin {
         pluginManager.registerEvents(new ListenerArmorStand(), this);
 
         // Wrench
-        new ItemWrench(this);
-        pluginManager.registerEvents(new ListenerItemWrench(), this);
-        pluginManager.registerEvents(new ListenerWrenchArmorStand(), this);
-        pluginManager.registerEvents(new ListenerWrenchBlock(), this);
+        this.wrench = new ItemWrench(this);
+        pluginManager.registerEvents(new ListenerItemWrench(this.wrench), this);
+        pluginManager.registerEvents(new ListenerWrenchArmorStand(this.wrench), this);
+        pluginManager.registerEvents(new ListenerWrenchBlock(this.wrench), this);
 
         // MineChell command
         this.getCommand(CommandMineChell.COMMAND).setExecutor(new CommandMineChell());

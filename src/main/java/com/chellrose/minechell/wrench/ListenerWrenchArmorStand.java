@@ -12,13 +12,19 @@ import org.bukkit.inventory.ItemStack;
 import com.chellrose.minechell.armorstand.ArmorStandPose;
 
 public class ListenerWrenchArmorStand implements Listener {
+    private ItemWrench itemWrench;
+
+    public ListenerWrenchArmorStand(ItemWrench itemWrench) {
+        this.itemWrench = itemWrench;
+    }
+
     @EventHandler
     public void onPlayerInteractAtEntity(PlayerInteractAtEntityEvent event) {
         Player player = event.getPlayer();
         if (event.getHand() == EquipmentSlot.HAND && player.isSneaking() && event.getRightClicked() instanceof ArmorStand) {
             ArmorStand armorStand = (ArmorStand)event.getRightClicked();
             ItemStack itemInHand = player.getInventory().getItemInMainHand();
-            if (ItemWrench.isWrench(itemInHand)) {
+            if (this.itemWrench.isWrench(itemInHand)) {
                 // Cycle to next armor stand pose
                 ArmorStandPose pose = new ArmorStandPose(armorStand);
                 int newIndex = pose.index() + 1;
