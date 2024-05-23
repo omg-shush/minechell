@@ -169,7 +169,10 @@ public class ListenerPlayerSitDown implements Listener {
                     keepalive.cancel();
                 }
                 Player player = (Player)event.getEntity();
-                Location standLocation = player.getLocation().add(0.0, -1.0 * DELTA_Y, 0.0);
+                Location standLocation = player.getLocation();
+                standLocation.setX(standLocation.getBlockX() + 0.5);
+                standLocation.setY(standLocation.getBlockY() + 2.0);
+                standLocation.setZ(standLocation.getBlockZ() + 0.5);
                 if (!player.isDead() && player.getVehicle() == null) {
                     player.teleport(standLocation);
                 }

@@ -38,7 +38,7 @@ public class App extends JavaPlugin {
         this.getCommand(CommandHat.COMMAND).setExecutor(new CommandHat());
 
         // Head
-        this.getCommand(CommandHead.COMMAND).setExecutor(new CommandHead());
+        this.getCommand(CommandHead.COMMAND).setExecutor(new CommandHead(this));
         pluginManager.registerEvents(new ListenerWanderingTrader(), this);
         pluginManager.registerEvents(new ListenerPlayerChargedCreeperDeath(), this);
 

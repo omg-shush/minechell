@@ -85,6 +85,7 @@ public class ItemWrench {
             PersistentDataType.TAG_CONTAINER,
             container.getAdapterContext().newPersistentDataContainer());
         blockDataContainer.set(new NamespacedKey(this.plugin, clazz.getName()), PersistentDataType.STRING, data.getAsString());
+        container.set(this.blockDataKey, PersistentDataType.TAG_CONTAINER, blockDataContainer); // save if got new container
         wrench.setItemMeta(meta);
     }
 
@@ -93,7 +94,7 @@ public class ItemWrench {
         PersistentDataContainer container = meta.getPersistentDataContainer();
         PersistentDataContainer blockDataContainer = container.get(this.blockDataKey, PersistentDataType.TAG_CONTAINER);
         if (blockDataContainer != null) {
-            String blockData = blockDataContainer.get(this.blockDataKey, PersistentDataType.STRING);
+            String blockData = blockDataContainer.get(new NamespacedKey(this.plugin, clazz.getName()), PersistentDataType.STRING);
             if (blockData != null) {
                 try {
                     BlockData data = Bukkit.getServer().createBlockData(blockData);

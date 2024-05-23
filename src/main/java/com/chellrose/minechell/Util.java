@@ -33,12 +33,12 @@ public class Util {
     }
 
     public static int armorStandItemCount(ArmorStand armorStand) {
-        int countHelmet = hasItem(armorStand.getEquipment().getHelmet()) ? 1 : 0;
-        int countChestplate = hasItem(armorStand.getEquipment().getChestplate()) ? 1 : 0;
-        int countLeggings = hasItem(armorStand.getEquipment().getLeggings()) ? 1 : 0;
-        int countBoots = hasItem(armorStand.getEquipment().getBoots()) ? 1 : 0;
-        int countItemInHand = hasItem(armorStand.getEquipment().getItemInMainHand()) ? 1 : 0;
-        int countItemInOffHand = hasItem(armorStand.getEquipment().getItemInOffHand()) ? 1 : 0;
+        int countHelmet        = hasItem(armorStand.getEquipment().getHelmet())         ? 1 : 0;
+        int countChestplate    = hasItem(armorStand.getEquipment().getChestplate())     ? 1 : 0;
+        int countLeggings      = hasItem(armorStand.getEquipment().getLeggings())       ? 1 : 0;
+        int countBoots         = hasItem(armorStand.getEquipment().getBoots())          ? 1 : 0;
+        int countItemInHand    = hasItem(armorStand.getEquipment().getItemInMainHand()) ? 1 : 0;
+        int countItemInOffHand = hasItem(armorStand.getEquipment().getItemInOffHand())  ? 1 : 0;
         return countHelmet + countChestplate + countLeggings + countBoots + countItemInHand + countItemInOffHand;
     }
 }

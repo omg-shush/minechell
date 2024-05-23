@@ -10,6 +10,7 @@ import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -20,6 +21,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.SkullMeta;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.profile.PlayerProfile;
 import org.bukkit.profile.PlayerTextures;
 
@@ -29,6 +31,12 @@ import com.google.gson.JsonParser;
 
 public class CommandHead implements CommandExecutor {
     public static final String COMMAND = "head";
+
+    private Plugin plugin;
+
+    public CommandHead(Plugin plugin) {
+        this.plugin = plugin;
+    }
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -41,11 +49,23 @@ public class CommandHead implements CommandExecutor {
                 SkullMeta headMeta = (SkullMeta)handStack.getItemMeta();
                 if (!headMeta.hasOwner()) {
                     if (args.length == 1) {
-                        headMeta = this.apply(player, args[0], headMeta);
-                        if (headMeta != null) {
-                            handStack.setItemMeta(headMeta);
-                            inv.setItemInMainHand(handStack);
+                        CompletableFuture<SkullMeta> future = apply(player, args[0], headMeta);
+                        if (future == null) {
+                            return false;
                         }
+                        future.thenAcceptAsync(updatedHeadMeta -> {
+                            if (player.isValid()) {
+                                PlayerInventory newInv = player.getInventory();
+                                ItemStack newHandStack = inv.getItemInMainHand();
+                                if (newHandStack.getType() == Material.PLAYER_HEAD) {
+                                    SkullMeta newHeadMeta = (SkullMeta)newHandStack.getItemMeta();
+                                    if (!newHeadMeta.hasOwner()) {
+                                        newHandStack.setItemMeta(updatedHeadMeta);
+                                        newInv.setItemInMainHand(newHandStack);
+                                    }
+                                }
+                            }
+                        }, runnable -> Bukkit.getScheduler().runTask(this.plugin, runnable));
                     } else {
                         player.sendMessage("Usage: /head <player name, uuid, or value>");
                     }
@@ -61,32 +81,37 @@ public class CommandHead implements CommandExecutor {
         return true;
     }
 
-    private SkullMeta apply(Player player, String arg, SkullMeta head) {
+    private CompletableFuture<SkullMeta> apply(Player player, String arg, SkullMeta head) {
         try {
             try {
+                if (arg.length() == 32) {
+                    arg = addUUIDDashes(arg);
+                }
                 UUID uuid = UUID.fromString(arg);
-                applyUUID(uuid, head);
+                return this.applyUUID(uuid, head);
             } catch (IllegalArgumentException e) {
                 try {
                     new String(Base64.getDecoder().decode(arg), StandardCharsets.UTF_8);
-                    applyBase64(arg, head);
-                } catch (IllegalArgumentException e2) {
-                    applyOwner(arg, head);
+                    return applyBase64(player, arg, head);
+                } catch (Exception e2) {
+                    return applyOwner(arg, head);
                 }
             }
-        } catch (IllegalArgumentException e) {
-            player.sendMessage("Invalid name, uuid, or value");
+        } catch (Exception e) {
+            player.sendMessage("Invalid name, uuid, or value (" + e.getLocalizedMessage() + ")");
             return null;
         }
-        return head;
     }
 
-    public static void applyUUID(UUID uuid, SkullMeta head) {
+    public CompletableFuture<SkullMeta> applyUUID(UUID uuid, SkullMeta head) {
         PlayerProfile profile = Bukkit.createPlayerProfile(uuid);
-        head.setOwnerProfile(profile);
+        return profile.update().thenApplyAsync(updatedProfile -> {
+            head.setOwnerProfile(updatedProfile);
+            return head;
+        }, runnable -> Bukkit.getScheduler().runTask(this.plugin, runnable));
     }
 
-    private void applyBase64(String base64, SkullMeta head) {
+    private CompletableFuture<SkullMeta> applyBase64(Player player, String base64, SkullMeta head) {
         // Decode base64
         String json = new String(Base64.getDecoder().decode(base64), StandardCharsets.UTF_8);
         String url = JsonParser.parseString(json).getAsJsonObject()
@@ -95,19 +120,25 @@ public class CommandHead implements CommandExecutor {
             .get("url").getAsString();
         try {
             URL urlObj = URI.create(url).toURL();
-            PlayerProfile profile = Bukkit.createPlayerProfile(base64);
-            PlayerTextures textures = profile.getTextures();
-            textures.setSkin(urlObj);
-            profile.setTextures(textures);
-            head.setOwnerProfile(profile);
+            PlayerProfile profile = player.getPlayerProfile();
+            return profile.update().thenApplyAsync(updatedProfile -> {
+                PlayerTextures textures = updatedProfile.getTextures();
+                textures.setSkin(urlObj);
+                updatedProfile.setTextures(textures);
+                head.setOwnerProfile(updatedProfile);
+                return head;
+            }, runnable -> Bukkit.getScheduler().runTask(this.plugin, runnable));
         } catch (MalformedURLException e) {
-            return; // TODO validate outside
+            throw new RuntimeException(e);
         }
     }
 
-    private void applyOwner(String owner, SkullMeta head) {
-        PlayerProfile profile = Bukkit.createPlayerProfile(owner);
-        head.setOwnerProfile(profile);
+    private CompletableFuture<SkullMeta> applyOwner(String owner, SkullMeta head) {
+        PlayerProfile profile = Bukkit.getOfflinePlayer(getUUIDFromPlayerName(owner)).getPlayerProfile();
+        return profile.update().thenApplyAsync(updatedProfile -> {
+            head.setOwnerProfile(updatedProfile);
+            return head;
+        }, runnable -> Bukkit.getScheduler().runTask(this.plugin, runnable));
     }
 
     public static UUID getUUIDFromPlayerName(String player) {
@@ -116,9 +147,18 @@ public class CommandHead implements CommandExecutor {
         try {
             HttpResponse<String> response = client.send(request, BodyHandlers.ofString());
             JsonObject json = JsonParser.parseString(response.body()).getAsJsonObject();
-            return UUID.fromString(json.get("id").getAsString());
+            return UUID.fromString(addUUIDDashes(json.get("id").getAsString()));
         } catch (Exception e) {
-            return null;
+            throw new RuntimeException(e);
         }
+    }
+
+    public static String addUUIDDashes(String idNoDashes) {
+        StringBuffer idBuff = new StringBuffer(idNoDashes);
+        idBuff.insert(20, '-');
+        idBuff.insert(16, '-');
+        idBuff.insert(12, '-');
+        idBuff.insert(8, '-');
+        return idBuff.toString();
     }
 }
