@@ -14,6 +14,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.Bisected.Half;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.type.Campfire;
 import org.bukkit.block.data.type.Slab;
 import org.bukkit.block.data.type.Slab.Type;
 import org.bukkit.block.data.type.Stairs;
@@ -131,7 +132,8 @@ public class ListenerPlayerSitDown implements Listener {
 
     private boolean isValidSeat(BlockData blockData) {
         return (blockData instanceof Slab && ((Slab)blockData).getType() == Slab.Type.BOTTOM) ||
-            (blockData instanceof Stairs && ((Stairs)blockData).getHalf() == Half.BOTTOM);
+            (blockData instanceof Stairs && ((Stairs)blockData).getHalf() == Half.BOTTOM) ||
+            (blockData instanceof Campfire && !((Campfire)blockData).isLit());
     }
 
     @EventHandler
